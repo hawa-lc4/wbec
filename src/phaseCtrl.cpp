@@ -6,18 +6,19 @@
 #include <logger.h>
 #include <loadManager.h>
 #include <mbComm.h>
-
-const uint8_t m  = 6;
-const uint8_t id = 0;
+#include <phaseCtrl.h>
+#include <wlan_key.h>
 
 #define LIMIT_230V       200
-#define LIMIT_0V   	      15
+#define LIMIT_0V   	      33    // default: 15
 #define LIMIT_0A           0
 #define CYCLE_TIME		   500		// 500 ms
 #define VOLT_DEB_TIME  60000		// wait 60s until voltage is considered stable
 #define AMPS_DEB_TIME  60000		// wait 60s until current is considered stable
 #define MAX_WAIT_TIME 300000		// go back to INIT latest after 5 min in WAIT_0AMP --> abort switching
 
+const uint8_t m  = 6;
+const uint8_t id = 0;
 
 enum pcState_enum {INIT, NORMAL_1P, NORMAL_3P, WAIT_0AMP};
 
@@ -68,7 +69,7 @@ bool pc_check0Amp() {
 }
 
 
-uint8_t getRequestedPhases() {
+uint8_t getRequestedPhases() {  // Baustelle
 	return(pcRequest);
 	// read available power from e.g. openWB
 	/* if (power > 4kW) {
@@ -86,9 +87,9 @@ void httpCall(boolean state) {
 	HTTPClient http;
 	String serverPath;
 	if (state) {
-		serverPath = F("http://shelly-ip/relay/0?turn=on");
+		serverPath = F(phase13on);  // Adaption für Tasmota phase13
 	} else {
-		serverPath = F("http://shelly-ip/relay/0?turn=off");
+		serverPath = F(phase13off);  // Adaption für Tasmota phase13
 	}
 	log(m, F("url:") + serverPath);
 
@@ -101,6 +102,16 @@ void httpCall(boolean state) {
 		log(m, F("Error code: ") + String(httpResponseCode));
 	}
 	http.end();
+}
+
+
+void localCall(boolean state){ 
+	if (state) {
+	  digitalWrite(PIN_PHASECTRL, HIGH);				// Relais ON
+	} else {
+	  digitalWrite(PIN_PHASECTRL, LOW);					// Relais OFF
+	}
+	log(m, F("3P local: ") + String(state));
 }
 
 
@@ -172,11 +183,11 @@ void pc_handle() {
 		case WAIT_0AMP:
 			if (pc_check0Amp()) {
 				if (getRequestedPhases() == 1) {
-					log(m, F("Call Shelly OFF"));
+					log(m, F("Call 3Ph OFF"));
 					httpCall(false);
 				}
 				if (getRequestedPhases() == 3) {
-					log(m, F("Call Shelly ON"));
+					log(m, F("Call 3Ph ON"));
 					httpCall(true);
 				}
 				trans_INIT();
@@ -199,9 +210,18 @@ void pc_requestPhase(uint8_t val) {
 }
 
 
+uint8_t pc_requestedPhase() {
+	if (pcRequest != 0) return(pcRequest);
+	if (pcState == 1) return(1);
+	if (pcState == 2) return(3);
+	return(0);
+}
+
+
 uint8_t pc_getState() {
 	return(pcState);
 }
+
 
 boolean pc_switchInProgress() {
 	if (lastHandleCall == 0) {

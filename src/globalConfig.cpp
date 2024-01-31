@@ -3,19 +3,23 @@
 
 #include <ArduinoJson.h>
 #include <globalConfig.h>
+#include <wlan_key.h>
 #include <LittleFS.h>
 #include <logger.h>
 
 const uint8_t m = 5;
 
-#define WBEC_VER(s) "v" MAJOR_VER_STRING(s) ".5.1"     // token stringification
-#define MAJOR_VER_STRING(s) #s                         // .. with two levels of macros
+// #define WBEC_VER(s) "v" MAJOR_VER_STRING(s) ".5.1"     		// token stringification orig
+#define WBEC_VER(s) "hawa-v" MAJOR_VER_STRING(s) ".74.2"     	// token stringification; based on wbec version v0.5.0
+#define MAJOR_VER_STRING(s) #s                         				// .. with two levels of macros
 
-char     cfgWbecVersion[]             = WBEC_VER(WBEC_VERSION_MAJOR); // wbec version
-char     cfgBuildDate[]               = __DATE__ " " __TIME__;        // wbec build date
+char     cfgWbecVersion[]             = WBEC_VER(WALLE_VERSION_MAJOR); // wbec version
+char     cfgBuildDate[]               = __DATE__ " " __TIME__;     		// wbec build date
 
-char     cfgApSsid[32];               // SSID of the initial Access Point
-char     cfgApPass[63];               // Password of the initial Access Point
+char     cfgOTAUsername[16];          // OTA user name for this project
+char     cfgOTAPasswd[16];            // OTA password for this project
+char     cfgApSsid[16];               // SSID of the initial Access Point
+char     cfgApPass[32];               // Password of the initial Access Point
 uint8_t  cfgCntWb;                    // number of connected wallboxes in the system
 uint8_t  cfgMbCycleTime;              // cycle time of the modbus (in seconds)
 uint16_t cfgMbDelay;                  // delay time of the modbus before sending new message (in milliseconds)
@@ -62,7 +66,7 @@ static bool createConfig() {
 	StaticJsonDocument<128> doc;
 
 	// default configuration parameters
-	doc["cfgApPass"]              = F("wbec1234"); // older version had "cebw1234"
+	doc["cfgApPass"]              = F("cebw1234"); // older version had "cebw1234"
 	doc["cfgCntWb"]               = 1;
 	
 	File configFile = LittleFS.open(F("/cfg.json"), "w");
@@ -125,20 +129,22 @@ void loadConfig() {
 	}
 
 	strncpy(cfgApSsid,          doc["cfgApSsid"]             | "wbec",             sizeof(cfgApSsid));
-	strncpy(cfgApPass,          doc["cfgApPass"]             | "wbec1234",         sizeof(cfgApPass));
+	strncpy(cfgApPass,          doc["cfgApPass"]             | APpasswd,           sizeof(cfgApPass));
+	strncpy(cfgOTAUsername,     doc["cfgOTAUsername"]        | OTAusername,        sizeof(cfgOTAUsername));
+	strncpy(cfgOTAPasswd,       doc["cfgOTAPasswd"]          | OTApasswd,          sizeof(cfgOTAPasswd));
 	cfgCntWb                  = doc["cfgCntWb"]              | 1;
 	cfgMbCycleTime            = doc["cfgMbCycleTime"]        | 10; 
 	cfgMbDelay                = doc["cfgMbDelay"]            | 100UL; 
 	cfgMbTimeout              = doc["cfgMbTimeout"]          | 60000UL;
 	cfgStandby                = doc["cfgStandby"]            | 4UL; 
-	cfgFailsafeCurrent        = doc["cfgFailsafeCurrent"]    | 0UL; 
+	cfgFailsafeCurrent        = doc["cfgFailsafeCurrent"]    | 100UL; 
 	strncpy(cfgMqttIp,          doc["cfgMqttIp"]             | "",                 sizeof(cfgMqttIp));
 	cfgMqttPort               = doc["cfgMqttPort"]           | 1883UL;
 	strncpy(cfgMqttUser,        doc["cfgMqttUser"]           | "",                 sizeof(cfgMqttUser));
 	strncpy(cfgMqttPass,        doc["cfgMqttPass"]           | "",                 sizeof(cfgMqttPass));
 	strncpy(cfgMqttWattTopic,   doc["cfgMqttWattTopic"]      | "wbec/pv/setWatt",  sizeof(cfgMqttWattTopic));
 	strncpy(cfgMqttWattJson,    doc["cfgMqttWattJson"]       | "",                 sizeof(cfgMqttWattJson));
-	strncpy(cfgNtpServer,       doc["cfgNtpServer"]          | "europe.pool.ntp.org", sizeof(cfgNtpServer));
+	strncpy(cfgNtpServer,       doc["cfgNtpServer"]          | NTPserver,          sizeof(cfgNtpServer));
 	strncpy(cfgFoxUser,         doc["cfgFoxUser"]            | "",                 sizeof(cfgFoxUser));
 	strncpy(cfgFoxPass,         doc["cfgFoxPass"]            | "",                 sizeof(cfgFoxPass));
 	strncpy(cfgFoxDevId,        doc["cfgFoxDevId"]           | "",                 sizeof(cfgFoxDevId));
@@ -146,7 +152,7 @@ void loadConfig() {
 	cfgPvCycleTime            = doc["cfgPvCycleTime"]        | 30; 
 	cfgPvLimStart             = doc["cfgPvLimStart"]         | 61; 
 	cfgPvLimStop              = doc["cfgPvLimStop"]          | 50; 
-	cfgPvPhFactor             = doc["cfgPvPhFactor"]         | 69; 
+	cfgPvPhFactor             = doc["cfgPvPhFactor"]         | 46; 
 	cfgPvOffset               = doc["cfgPvOffset"]           | 0UL;
 	cfgPvInvert               = doc["cfgPvInvert"]           | 0L;
 	cfgPvMinTime              = doc["cfgPvMinTime"]          | 0L;
@@ -163,7 +169,7 @@ void loadConfig() {
 	cfgInvSmartAddr           = doc["cfgInvSmartAddr"]       | 0UL;
 	cfgBootlogSize            = doc["cfgBootlogSize"]        | 2000;
 	cfgBtnDebounce            = doc["cfgBtnDebounce"]        | 0;
-	cfgWifiConnectTimeout     = doc["cfgWifiConnectTimeout"] | 10;
+	cfgWifiConnectTimeout     = doc["cfgWifiConnectTimeout"] | 25;
 	cfgResetOnTimeout         = doc["cfgResetOnTimeout"]     | 0;
 	
 	LOG(m, "cfgWbecVersion: %s", cfgWbecVersion);

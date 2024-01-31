@@ -10,13 +10,25 @@
 
 #define TIME_LEN            10   // "23:12:01: "
 #define MOD_LEN              6   // "WEBS: "
+#define SEC2MIN 60
+#define SEC2HRS 3600
+#define SEC2DAYS 86400UL
 
 static WiFiUDP ntpUDP;
 static NTPClient timeClient(ntpUDP, cfgNtpServer, 3600, 60000); // GMT+1 and update every minute
+// static NTPClient timeClient(ntpUDP, cfgNtpServer); // local time from NTP server and default update every minute (see: NTPClient.h)
 
 static const char *mod[13] = {"", "MB  ", "MQTT", "WEBS", "GO-E", "CFG ", "1P3P", "LLOG", "RFID", "PFOX", "SOCK", "PV  ", "SHLY"};
 static char *   bootLog;
 static uint16_t bootLogSize;
+uint32_t uptimeSekunden = 3;
+uint32_t currMillis;
+uint32_t lastMillis;
+uint16_t upDays;
+uint8_t upHrs;
+uint8_t upMin;
+uint8_t upSec;
+uint32_t tmpTime;
 
 
 static boolean getDstGermany(uint32_t unixtime) {
@@ -89,8 +101,12 @@ void log(uint8_t module, String msg, boolean newLine /* =true */) {
 	if (newLine) {
 		output += "\n";
 	}
+#if WALLE_VERSION_MAJOR == 1
+  Serial1.print(output);
+#endif
+#if WALLE_VERSION_MAJOR == 2
   Serial.print(output);
-
+#endif
   if ((strlen(bootLog)+strlen(output.c_str()) + 5) < bootLogSize) {
     strcat(bootLog, output.c_str());
   } 
@@ -110,11 +126,20 @@ void log(uint8_t module, const char *msg, boolean newLine /* =true */) {
     strcpy(output, "");
   }
   // print to Serial
+#if WALLE_VERSION_MAJOR == 1
+  Serial1.print(output);
+  Serial1.print(msg);
+	if (newLine) {
+    Serial1.print("\n");
+	}
+#endif
+#if WALLE_VERSION_MAJOR == 2
   Serial.print(output);
   Serial.print(msg);
 	if (newLine) {
     Serial.print("\n");
 	}
+#endif
   // print to bootLog, if there is still enough space
   if ((strlen(bootLog)+strlen(output)+strlen(msg) + 5) < bootLogSize) {
     strcat(bootLog, output);
@@ -135,13 +160,24 @@ String log_time() {
 uint32_t log_unixTime() {
   // The pfox chart needs the 'real' unixtime, not corrected for timezone or DST
   uint32_t time = timeClient.getEpochTime() - 3600;
-
   if (getDstGermany(time)) { 
     time = time - 3600;
   }
 	return(time);
 }
 
+
+String log_uptime() {
+  upDays = (int)(uptimeSekunden / SEC2DAYS);
+  tmpTime = uptimeSekunden % SEC2DAYS;
+  upHrs = (int)(tmpTime / SEC2HRS);
+  tmpTime = tmpTime % SEC2HRS;
+  upMin = (int)(tmpTime / SEC2MIN);
+  upSec = tmpTime % SEC2MIN;
+  char upTime[24];
+  sprintf(upTime, "%01dd %02d:%02d:%02d", upDays, upHrs, upMin, upSec);
+  return(upTime);
+}
 
 char* log_getBuffer() {
   return(bootLog);
@@ -175,10 +211,16 @@ void logger_setup() {
   } 
   // connect to NTP time server
   timeClient.begin();
+  currMillis = lastMillis = millis();
 }
 
 
 void logger_loop() {
 	timeClient.update();
 	if (getDstGermany(timeClient.getEpochTime())) timeClient.setTimeOffset(7200);
+  currMillis = millis();
+  if (currMillis - lastMillis >= 1000) {
+    uptimeSekunden++;
+    lastMillis += 1000;
+  }
 }

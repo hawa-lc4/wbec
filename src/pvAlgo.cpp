@@ -9,13 +9,13 @@
 #include <mbComm.h>
 #include <pvAlgo.h>
 #include <RTCVars.h>
-
-
-const uint8_t m = 11;
+#include <phaseCtrl.h>
 
 #define WATT_MIN        -100000		// 100kW Feed-in
 #define WATT_MAX         100000		// 100kW Consumption
 #define BOXID                 0		// only 1 box supported
+
+const uint8_t m = 11;
 
 RTCVars rtc;                               // used to memorize a few global variables over reset (not for cold boot / power on reset)
 
@@ -28,7 +28,6 @@ static pvMode_t  pvMode               = PV_OFF;
 
 void pvAlgo() {
 	int32_t availPower = 0;
-
 	uint16_t targetCurr = 0;
 	uint8_t actualCurr = content[BOXID][53];
 
@@ -42,9 +41,44 @@ void pvAlgo() {
 		availPower = (availPowerPrev + availPower) / 2;
 		availPowerPrev = availPower;
 		
+
+	// Phase factor auto-detection - based on wallbox connection
+	// https://github.com/steff393/wbec/issues/77#issuecomment-1568929210
+	// if (cfgPvPhFactor == 0) {
+	// 	if (content[BOXID][6] > LIMIT_230V && 
+	// 			content[BOXID][7] < LIMIT_0V && 
+	// 			content[BOXID][8] < LIMIT_0V) {
+	// 		phaseFactor = 23;
+	// 	} else {
+	// 		phaseFactor = 69;
+	// 	}
+	// } else {
+	// 	phaseFactor = cfgPvPhFactor;
+	// }
+
+	// Phase factor auto-detection - based on car connection
+	// https://github.com/steff393/wbec/issues/77#issuecomment-1568929210
+	// if (cfgPvPhFactor == 1) {
+	// 	if (content[BOXID][2] > LIMIT_0A && 
+	// 			content[BOXID][3] == LIMIT_0A && 
+	// 			content[BOXID][4] == LIMIT_0A) {
+	// 		phaseFactor = 23;
+	// 	} else if (content[BOXID][2] > LIMIT_0A && 
+	// 						 content[BOXID][3] > LIMIT_0A && 
+	// 						 content[BOXID][4] == LIMIT_0A) {
+	// 		phaseFactor = 46;
+	// 	} else {
+	// 		phaseFactor = 69;
+	// 	}
+	// } else {
+	// 	phaseFactor = cfgPvPhFactor;
+	// }
+
 		// Calculate the new target current
 		if (availPower > 0 && cfgPvPhFactor != 0) {
 			targetCurr = (uint16_t) (availPower / (int32_t) cfgPvPhFactor); 
+		// if (availPower > 0 && phaseFactor != 0) {
+		// 	targetCurr = (uint16_t) (availPower / (int32_t) phaseFactor); 
 		}
 		LOG(m, "Target current: %.1fA", (float)targetCurr/10.0)
 		// Hysteresis
@@ -77,15 +111,27 @@ void pvAlgo() {
 		targetCurr = 0;
 		availPowerPrev = 0;
 	}
-	Serial.print("Watt="); Serial.print(watt); Serial.print(", availPower="); Serial.print(availPower); Serial.print(", targetCurr="); Serial.println(targetCurr);
+#if WALLE_VERSION_MAJOR == 1
+	Serial1.print("Watt="); Serial1.print(watt);
+	Serial1.print(", availPower=");
+	Serial1.print(availPower);
+	Serial1.print(", targetCurr=");
+	Serial1.println(targetCurr);
+#endif
+#if WALLE_VERSION_MAJOR == 2
+	Serial.print("Watt="); Serial.print(watt);
+	Serial.print(", availPower=");
+	Serial.print(availPower);
+	Serial.print(", targetCurr=");
+	Serial.println(targetCurr);
+#endif
 
-
-	FSInfo fs_info;   
+	FSInfo fs_info;
 	LittleFS.info(fs_info);
 	uint32_t time = log_unixTime();
 	if ((time < 2085000000UL) &&                                // 26.01.2036 --> sometimes there are large values (e.g. 2085985724) which are wrong -> ignore them
 			(fs_info.totalBytes - fs_info.usedBytes > 512000)) {    // 500kB should remain free
-		File logFile = LittleFS.open(F("/pv.txt"), "a"); // Write the time and the temperature to the csv file
+		File logFile = LittleFS.open(F("/pv.txt"), "a");          // Write the time and the temperature to the csv file
 		logFile.print(time);
 		logFile.print(";");
 		logFile.print(watt);
@@ -157,5 +203,10 @@ pvMode_t pv_getMode() {
 void pv_setMode(pvMode_t val) {
 	pvMode = val;
 	rtc.saveToRTC();     // memorize over reset
+	if (pvMode == NoPV_Sofort) {  // if-Abfrage von hawa  :: Baustelle::
+		pc_requestPhase(3);
+	} else if (pvMode == PV_MIN_PV || pvMode == PV_ACTIVE) {
+		pc_requestPhase(1);
+	}
 	lastCall = 0;  // make sure to call pv_Algo() in the next pv_loop() call
 }

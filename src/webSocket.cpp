@@ -7,7 +7,7 @@
 #include <logger.h>
 #include <loadManager.h>
 #include <mbComm.h>
-#include <powerfox.h>
+// #include <powerfox.h>
 #include <pvAlgo.h>
 #include <webSocket.h>
 #include <WebSocketsServer.h>
@@ -70,6 +70,7 @@ void webSocket_loop() {
 	data[F("energyC")]  = (float)goE_getEnergySincePlugged(id) / 1000.0;
 	data[F("currLim")]  = (float)content[id][53]/10.0;
 	data[F("failCnt")]  = mb_getFailureCnt(id);
+	data[F("mbErrCnt")] = mb_getErrCnt(id);
 	data[F("watt")]     = pv_getWatt();
 	data[F("pvMode")]   = pv_getMode();
 	data[F("timeNow")]  = log_time();

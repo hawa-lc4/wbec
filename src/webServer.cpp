@@ -4,33 +4,34 @@
 #include <AsyncElegantOTA.h>
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
-#include <button.h>
+// #include <button.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <globalConfig.h>
 #include <goEmulator.h>
-#include <inverter.h>
+// #include <inverter.h>
 #include <LittleFS.h>
 #include <loadManager.h>
 #include <logger.h>
 #include <mbComm.h>
 #include <phaseCtrl.h>
-#include <powerfox.h>
+// #include <powerfox.h>
 #include <pvAlgo.h>
-#include <rfid.h>
+// #include <rfid.h>
 #include <SPIFFSEditor.h>
 #include <webServer.h>
 #define WIFI_MANAGER_USE_ASYNC_WEB_SERVER
 #include <WiFiManager.h>
 
-#define PFOX_JSON_LEN 256
-#define GPIO_JSON_LEN  32
+// #define PFOX_JSON_LEN 256
+// #define GPIO_JSON_LEN  32
 
 static const uint8_t m = 3;
 
 
+static const char *pcState_string[4] = {"INIT", "NORMAL_1P", "NORMAL_3P", "WAIT_0AMP"};
 static AsyncWebServer server(80);
 static boolean resetRequested = false;
 static boolean resetwifiRequested = false;
@@ -88,40 +89,46 @@ void webServer_setup() {
 		request->send(200, F("text/plain"), F("Cleared"));
 	});
 
-	server.on("/gpio", HTTP_GET, [](AsyncWebServerRequest *request){
-		StaticJsonDocument<GPIO_JSON_LEN> data;
+	// server.on("/gpio", HTTP_GET, [](AsyncWebServerRequest *request){
+	// 	StaticJsonDocument<GPIO_JSON_LEN> data;
 
-		if (rfid_getEnabled()) {
-			// if RFID is enabled, then it's not possible to use the GPIOs for other purposes
-			request->send(200, F("text/plain"), F("Not possible, RFID active!"));
-		} else {
-			// Set GPIO as an OUTPUT
-			if (request->hasParam(F("on"))) {
-				digitalWrite(PIN_RST, HIGH);
-			}
-			if (request->hasParam(F("off"))) {
-				digitalWrite(PIN_RST, LOW);
-			}
-			data[F("D3")] = digitalRead(PIN_RST);
-			if (cfgBtnDebounce==0) {
-				data[F("D7")] = digitalRead(PIN_PV_SWITCH);
-			} else {
-				data[F("D7")] = btn_getState() ? 1 : 0;
-			}
-			char response[GPIO_JSON_LEN];
-			serializeJson(data, response, GPIO_JSON_LEN);
-			request->send(200, F("application/json"), response);
-		} 
-	});
+	// 	if (rfid_getEnabled()) {
+	// 		// if RFID is enabled, then it's not possible to use the GPIOs for other purposes
+	// 		request->send(200, F("text/plain"), F("Not possible, RFID active!"));
+	// 	} else {
+	// 		// Set GPIO as an OUTPUT
+	// 		if (request->hasParam(F("on"))) {
+	// 			digitalWrite(PIN_RST, HIGH);
+	// 		}
+	// 		if (request->hasParam(F("off"))) {
+	// 			digitalWrite(PIN_RST, LOW);
+	// 		}
+	// 		data[F("D3")] = digitalRead(PIN_RST);
+	// 		if (cfgBtnDebounce==0) {
+	// 			data[F("D7")] = digitalRead(PIN_PV_SWITCH);
+	// 		} else {
+	// 			data[F("D7")] = btn_getState() ? 1 : 0;
+	// 		}
+	// 		char response[GPIO_JSON_LEN];
+	// 		serializeJson(data, response, GPIO_JSON_LEN);
+	// 		request->send(200, F("application/json"), response);
+	// 	} 
+	// });
 
 	server.on("/reset", HTTP_GET, [](AsyncWebServerRequest *request){
-		request->send(200, F("text/plain"), F("Resetting the ESP8266..."));
-		resetRequested = true;
+    if (request->hasParam(F("doIt"))) {
+      resetRequested = true;
+      request->send(200, F("text/plain"), F("ok. Resetting the ESP8266..."));
+    }
+		request->send(200, F("text/plain"), F("Reset? ok. Und was nun?..."));
 	});
 
 	server.on("/resetwifi", HTTP_GET, [](AsyncWebServerRequest *request){
-		request->send(200, F("text/plain"), F("WiFi credentials deleted!"));
-		resetwifiRequested = true;
+    if (request->hasParam(F("doIt"))) {
+			resetwifiRequested = true;
+			request->send(200, F("text/plain"), F("WiFi credentials deleted!"));
+		}
+		request->send(200, F("text/plain"), F("ResetWiFi? im Ernst??..."));
 	});
 
 	server.on("/json", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -172,7 +179,7 @@ void webServer_setup() {
 		}
 		if (request->hasParam(F("pvMode"))) {
 			pvMode_t val = (pvMode_t) request->getParam(F("pvMode"))->value().toInt();
-			if (val <= PV_MIN_PV) {
+			if (val <= NoPV_Sofort) {
 				pv_setMode(val);
 			}
 		}
@@ -185,6 +192,7 @@ void webServer_setup() {
 		data[F("wbec")][F("version")] = cfgWbecVersion;
 		data[F("wbec")][F("bldDate")] = cfgBuildDate;
 		data[F("wbec")][F("timeNow")] = log_time();
+		data[F("wbec")][F("uptime")]  = log_uptime();
 		for (int i = from; i < to; i++) {
 			data[F("box")][i][F("busId")]    = i+1;
 			data[F("box")][i][F("version")]  = String(content[i][0], HEX);
@@ -214,12 +222,13 @@ void webServer_setup() {
 			data[F("box")][i][F("lmLim")]    = lm_getWbLimit(i);
 			data[F("box")][i][F("resCode")]  = String(modbusResultCode[i], HEX);
 			data[F("box")][i][F("failCnt")]  = mb_getFailureCnt(i);
+			data[F("box")][i][F("mbErrCnt")] = mb_getErrCnt(i);
 		}
 		data[F("modbus")][F("state")][F("lastTm")]  = modbusLastTime;
 		data[F("modbus")][F("state")][F("millis")]  = millis();
-		data[F("rfid")][F("enabled")]      = rfid_getEnabled();
-		data[F("rfid")][F("release")]      = rfid_getReleased();
-		data[F("rfid")][F("lastId")]       = rfid_getLastID();
+		// data[F("rfid")][F("enabled")]      = rfid_getEnabled();
+		// data[F("rfid")][F("release")]      = rfid_getReleased();
+		// data[F("rfid")][F("lastId")]       = rfid_getLastID();
 		data[F("pv")][F("mode")]           = pv_getMode();
 		data[F("pv")][F("watt")]           = pv_getWatt();
 		data[F("wifi")][F("mac")]          = WiFi.macAddress();
@@ -269,42 +278,66 @@ void webServer_setup() {
 		if (request->hasParam(F("ph"))) {
 			pc_requestPhase(request->getParam(F("ph"))->value().toInt());
 		}
-		request->send(200, F("text/plain"), String(pc_getState()));
+		String retChar = pcState_string[pc_getState()];
+		request->send(200, F("text/plain"), retChar);
 	});
 
-	server.on("/pv", HTTP_GET, [](AsyncWebServerRequest *request) {
-		StaticJsonDocument<PFOX_JSON_LEN> data;
-		uint8_t id = 0;
-		// modify values
-		if (request->hasParam(F("pvMode"))) {
-			pvMode_t val = (pvMode_t) request->getParam(F("pvMode"))->value().toInt();
-			if (val <= PV_MIN_PV) {
-				pv_setMode(val);
-			}
-		}
-		if (request->hasParam(F("pvWatt"))) {
-			pv_setWatt(request->getParam(F("pvWatt"))->value().toInt());
-		}
+	// server.on("/chargelog", HTTP_GET, [](AsyncWebServerRequest *request) {   // ::Baustelle:: siehe log.js
+	// 	uint8_t  id       = 0;
+	// 	uint8_t  from     = 0;        // used in 'for loop'
+	// 	uint8_t  to       = cfgCntWb; // used in 'for loop'
+	// 	uint16_t jsonSize = (cfgCntWb+2)/3 * 2048;  // always 2048 byte for 3 wallboxes
+	// 	// modify values
+	// 	if (request->hasParam(F("id"))) {
+	// 		id       = request->getParam(F("id"))->value().toInt();
+	// 		from     = id;      // if id is provided, then only
+	// 		to       = id+1;    // those values are returned (-> save RAM)
+	// 		jsonSize = 256;    // for one wallbox 2048 are sufficient         
+	// 	}
+	// 	DynamicJsonDocument data(jsonSize);
+	// 			for (int i = from; i < to; i++) {
+	// 		data[F("box")][i][F("busId")]    = i+1;
+	// 		data[F("box")][i][F("energyC")]  = (float)goE_getEnergySincePlugged(i) / 1000.0;
+	// 			}
+	// 	String response;
+	// 	serializeJson(data, response);
+	// 	log(m, response);
+	// 	request->send(200, F("application/json"), response);
+	// });
 
-		data[F("box")][F("chgStat")]  = content[id][1];
-		data[F("box")][F("power")]    = content[id][10];
-		data[F("box")][F("currLim")]  = content[id][53];
-		data[F("box")][F("resCode")]  = String(modbusResultCode[id], HEX);
-		data[F("modbus")][F("millis")]  = millis();
-		data[F("pv")][F("mode")]    = pv_getMode();
-		data[F("pv")][F("watt")]    = pv_getWatt();
-		char response[PFOX_JSON_LEN];
-		serializeJson(data, response, PFOX_JSON_LEN);
-		request->send(200, F("application/json"), response);
-	});
+	// server.on("/pv", HTTP_GET, [](AsyncWebServerRequest *request) {
+	// 	StaticJsonDocument<PFOX_JSON_LEN> data;
+	// 	uint8_t id = 0;
+	// 	// modify values
+	// 	if (request->hasParam(F("pvMode"))) {
+	// 		pvMode_t val = (pvMode_t) request->getParam(F("pvMode"))->value().toInt();
+	// 		if (val <= PV_MIN_PV) {
+	// 			pv_setMode(val);
+	// 		}
+	// 	}
+	// 	if (request->hasParam(F("pvWatt"))) {
+	// 		pv_setWatt(request->getParam(F("pvWatt"))->value().toInt());
+	// 	}
 
-	server.on("/inverter", HTTP_GET, [](AsyncWebServerRequest *request){
-		request->send(200, F("application/json"), inverter_getStatus());
-	});
+	// 	data[F("box")][F("chgStat")]  = content[id][1];
+	// 	data[F("box")][F("power")]    = content[id][10];
+	// 	data[F("box")][F("currLim")]  = content[id][53];
+	// 	data[F("box")][F("resCode")]  = String(modbusResultCode[id], HEX);
+	// 	data[F("modbus")][F("millis")]  = millis();
+	// 	data[F("pv")][F("mode")]    = pv_getMode();
+	// 	data[F("pv")][F("watt")]    = pv_getWatt();
+	// 	char response[PFOX_JSON_LEN];
+	// 	serializeJson(data, response, PFOX_JSON_LEN);
+	// 	request->send(200, F("application/json"), response);
+	// });
+
+	// server.on("/inverter", HTTP_GET, [](AsyncWebServerRequest *request){
+	// 	request->send(200, F("application/json"), inverter_getStatus());
+	// });
 
 
 	// add the SPIFFSEditor, which can be opened via "/edit"
-	server.addHandler(new SPIFFSEditor("" ,"" ,LittleFS));//http_username,http_password));
+	server.addHandler(new SPIFFSEditor(cfgOTAUsername, cfgOTAPasswd, LittleFS));//http_username,http_password));
 
 	server.serveStatic("/", LittleFS, "/");
 
@@ -321,6 +354,7 @@ void webServer_setup() {
 }
 
 void webServer_loop() {
+	AsyncElegantOTA.loop();
 	if (resetRequested || 
 		 ((cfgKnockOutTimer >= 20) && (millis() > ((uint32_t)cfgKnockOutTimer) * 60 * 1000))) {
 		ESP.restart();

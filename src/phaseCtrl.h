@@ -5,6 +5,7 @@
 
 extern void    pc_handle();
 extern void    pc_requestPhase(uint8_t val);
+extern uint8_t pc_requestedPhase();
 extern uint8_t pc_getState();
 extern boolean pc_switchInProgress();
 extern void    pc_backupRequest(uint16_t val);

@@ -10,7 +10,8 @@ typedef enum {
 	PV_DISABLED   = 0, 
 	PV_OFF        = 1, 
 	PV_ACTIVE     = 2, 
-	PV_MIN_PV     = 3
+	PV_MIN_PV     = 3,
+	NoPV_Sofort		= 4
 } pvMode_t;
 
 

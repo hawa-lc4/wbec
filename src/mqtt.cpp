@@ -4,13 +4,13 @@
 #include <ESP8266WiFi.h>
 #include <globalConfig.h>
 #include <goEmulator.h>
-#include <inverter.h>
+// #include <inverter.h>
 #include <logger.h>
 #include <loadManager.h>
 #include <mbComm.h>
 #include <PubSubClient.h>
 #include <pvAlgo.h>
-#include <rfid.h>
+// #include <rfid.h>
 
 
 const uint8_t m = 2;
@@ -294,9 +294,9 @@ void mqtt_publish(uint8_t i) {
 	snprintf_P(value, sizeof(value), PSTR("%d"), cfgPvPhFactor / 23);
 	client.publish(topic, value, retain);
 	
-	snprintf_P(topic, sizeof(topic), PSTR("%s/get/rfid_tag"), header);
-	snprintf_P(value, sizeof(value), PSTR("%s"), rfid_getLastID());
-	client.publish(topic, value, retain);
+	// snprintf_P(topic, sizeof(topic), PSTR("%s/get/rfid_tag"), header);   // nix RFID; hawa
+	// snprintf_P(value, sizeof(value), PSTR("%s"), rfid_getLastID());
+	// client.publish(topic, value, retain);
 
 	// topics for EVCC
 	snprintf_P(header, sizeof(header), PSTR("wbec/lp/%d"), cfgMqttLp[i]);
@@ -367,15 +367,15 @@ void mqtt_publish(uint8_t i) {
 	
 	// publish values from inverter
 	if (strcmp(cfgInverterIp, "") != 0) {
-		snprintf_P(header, sizeof(header), PSTR("wbec/inverter"));
+		// snprintf_P(header, sizeof(header), PSTR("wbec/inverter"));
 
-		snprintf_P(topic, sizeof(topic), PSTR("%s/pwrInv"), header);
-		snprintf_P(value, sizeof(value), PSTR("%d"), inverter_getPwrInv());
-		client.publish(topic, value, retain);
+		// snprintf_P(topic, sizeof(topic), PSTR("%s/pwrInv"), header);
+		// snprintf_P(value, sizeof(value), PSTR("%d"), inverter_getPwrInv());
+		// client.publish(topic, value, retain);
 
-		snprintf_P(topic, sizeof(topic), PSTR("%s/pwrMet"), header);
-		snprintf_P(value, sizeof(value), PSTR("%d"), inverter_getPwrMet());
-		client.publish(topic, value, retain);
+		// snprintf_P(topic, sizeof(topic), PSTR("%s/pwrMet"), header);
+		// snprintf_P(value, sizeof(value), PSTR("%d"), inverter_getPwrMet());
+		// client.publish(topic, value, retain);
 	}
 
 	// publish values from pvAlgo

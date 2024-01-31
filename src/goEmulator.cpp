@@ -6,6 +6,7 @@
 #include <logger.h>
 #include <loadManager.h>
 #include <mbComm.h>
+#include <phaseCtrl.h>
 
 #define CYCLE_TIME		                1000    // 1s
 #define MAX_PLAUSIBLE_ENERGY       1000000ULL // no car should be able to load more than 1000kWh in one cycle
@@ -70,6 +71,7 @@ void goE_handle() {
 
 
 void goE_setPayload(String payload, uint8_t id) {
+// https://github.com/goecharger/go-eCharger-API-v2/blob/main/apikeys-de.md  Abfrage auf cmd 'psm' (0,1,2) und 'fsp' (true/false)
 	String cmd;
 	uint16_t val = 0;
 	cmd = payload.substring(0,3);					// first 4 chars, e.g. "amx="
@@ -100,6 +102,17 @@ void goE_setPayload(String payload, uint8_t id) {
 			box[id].dwo = val;
 		}
 	}
+if (cmd == F("psm")) {
+		if (val == 2) val = 3;
+		pc_requestPhase(val);
+	}
+	// if (cmd == F("fsp")) {
+	// 	if (val == true) {
+	// 		pc_requestPhase(1);
+	// 	} else {
+	// 		pc_requestPhase(3);
+	// 	}
+	// }
 }
 
 String goE_getStatus(uint8_t id, boolean fromApp) {
@@ -160,6 +173,14 @@ String goE_getStatus(uint8_t id, boolean fromApp) {
 	data[F("ust")] = F("2");
 	data[F("ast")] = F("0");
 
+if (pc_requestedPhase() == 1) {
+		data[F("fsp")] = F("1");
+		data[F("psm")] = F("1");
+	}
+	if (pc_requestedPhase() == 3) {
+		data[F("fsp")] = F("0");
+		data[F("psm")] = F("2");
+	}
 	String response;
 	serializeJson(data, response);
 	log(m, response);
