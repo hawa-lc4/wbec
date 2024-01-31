@@ -10,7 +10,7 @@
 const uint8_t m = 5;
 
 // #define WBEC_VER(s) "v" MAJOR_VER_STRING(s) ".5.1"     		// token stringification orig
-#define WBEC_VER(s) "hawa-v" MAJOR_VER_STRING(s) ".74.2"     	// token stringification; based on wbec version v0.5.0
+#define WBEC_VER(s) "hawa-v" MAJOR_VER_STRING(s) ".74.2"     	// token stringification; based on wbec version v0.5.1
 #define MAJOR_VER_STRING(s) #s                         				// .. with two levels of macros
 
 char     cfgWbecVersion[]             = WBEC_VER(WALLE_VERSION_MAJOR); // wbec version

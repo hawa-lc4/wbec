@@ -11,6 +11,7 @@
  **************************************************************/
 
 #include "WiFiManager.h"
+#include <globalConfig.h>
 
 WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _id = NULL;
@@ -286,7 +287,6 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
         for(size_t i = 0 ; i<100;i++){
           if(WiFi.status() == WL_CONNECTED) break;
           DEBUG_WM(".");
-          // Serial.println(WiFi.status());
           delay(100);
         }        
         delay(1000);
@@ -328,6 +328,7 @@ int WiFiManager::connectWifi(String ssid, String pass) {
     ETS_UART_INTR_DISABLE();
     wifi_station_disconnect();
     ETS_UART_INTR_ENABLE();
+    WiFi.setHostname(WB_HOSTNAME);
     res = WiFi.begin(ssid.c_str(), pass.c_str(),0,NULL,true);
     if(res != WL_CONNECTED){
       DEBUG_WM(F("[ERROR] WiFi.begin res:"));
@@ -340,6 +341,7 @@ int WiFiManager::connectWifi(String ssid, String pass) {
       ETS_UART_INTR_DISABLE();
       wifi_station_disconnect();
       ETS_UART_INTR_ENABLE();
+      WiFi.setHostname(WB_HOSTNAME);
       res = WiFi.begin();
     } else {
       DEBUG_WM(F("No saved credentials"));
@@ -844,8 +846,14 @@ void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
 template <typename Generic>
 void WiFiManager::DEBUG_WM(Generic text) {
   if (_debug) {
+#if WALLE_VERSION_MAJOR == 1
+    Serial1.print("*WM: ");
+    Serial1.println(text);
+#endif
+#if WALLE_VERSION_MAJOR == 2
     Serial.print("*WM: ");
     Serial.println(text);
+#endif
   }
 }
 
