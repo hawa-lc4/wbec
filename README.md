@@ -127,6 +127,9 @@ hawa-vx.74.0 & hawa-vx.74.1:
   - testen ........
 
 hawa-vx.74.2:
+- v2.74.1 lief 64 Tage fehlerfrei; es wird bei dieser Konstellation bleiben.
+- Erweiterung mb_getErrCnt und modbusErrCnt auf uint16_t; wbec läuft sehr stabil ohne automatischen Neustart allerdings treten dennoch bis zu 3 Modbus
+  Fehler pro Tag auf. Damit Vergrößerung des Zählers auf max. 65535.
 - Anpassungen zur Veröffentlichung auf github.
 - 
 
