@@ -1,7 +1,7 @@
 // Copyright (c) 2021 steff393, MIT license
 
 #include <Arduino.h>
-#include <AsyncElegantOTA.h>
+#include <ElegantOTA.h>
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 // #include <button.h>
@@ -29,7 +29,7 @@
 // #define GPIO_JSON_LEN  32
 
 static const uint8_t m = 3;
-
+unsigned long ota_progress_millis = 0;
 
 static const char *pcState_string[4] = {"INIT", "NORMAL_1P", "NORMAL_3P", "WAIT_0AMP"};
 static AsyncWebServer server(80);
@@ -64,6 +64,33 @@ static uint8_t getSignalQuality(int rssi)
 				quality = 2 * (rssi + 100);
 		}
 		return quality;
+}
+
+
+void onOTAStart() {
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+  // <Add your own code here>
+}
+
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000) {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    Serial.println("OTA update finished successfully!");
+  } else {
+    Serial.println("There was an error during OTA update!");
+  }
+  // <Add your own code here>
 }
 
 
@@ -348,13 +375,18 @@ void webServer_setup() {
 	server.onFileUpload(onUpload);
 	server.onRequestBody(onBody);
 
-	AsyncElegantOTA.begin(&server);    // Start ElegantOTA
-	
+	// AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+	ElegantOTA.setAuth(cfgOTAUsername, cfgOTAPasswd);
+	ElegantOTA.begin(&server);    // Start ElegantOTA
+  // ElegantOTA callbacks:
+  // ElegantOTA.onStart(onOTAStart);
+  // ElegantOTA.onProgress(onOTAProgress);
+  // ElegantOTA.onEnd(onOTAEnd);	
 	server.begin();
 }
 
 void webServer_loop() {
-	AsyncElegantOTA.loop();
+	ElegantOTA.loop();
 	if (resetRequested || 
 		 ((cfgKnockOutTimer >= 20) && (millis() > ((uint32_t)cfgKnockOutTimer) * 60 * 1000))) {
 		ESP.restart();

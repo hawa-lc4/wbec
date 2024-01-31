@@ -14,7 +14,7 @@ extern uint16_t  content[WB_CNT][55];
 extern uint32_t  modbusLastTime;
 extern uint8_t   modbusResultCode[WB_CNT];
 extern uint8_t   mb_getFailureCnt(uint8_t id);
-extern uint8_t   mb_getErrCnt(uint8_t id);
+extern uint16_t  mb_getErrCnt(uint8_t id);
 
 
 #endif /* MBCOMM_H */

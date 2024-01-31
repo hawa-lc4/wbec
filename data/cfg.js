@@ -123,6 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	document.getElementById('btnStore').addEventListener('click', storeCfg);
 	document.getElementById('btnReset').addEventListener('click', resetWbec);
 	document.getElementById('btnRefresh').addEventListener('click', refresh);
+	document.getElementById('btnBlogRes').addEventListener('click', resetBlog);
 	const settings = {};
 
 	createHtmlTable();
@@ -257,4 +258,8 @@ function resetWbec() {
 
 function refresh() {
 	location.reload();
+}
+
+function resetBlog() {
+  fetch('/bootlog_reset');
 }

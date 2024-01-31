@@ -33,7 +33,7 @@ uint8_t          modbusResultCode[WB_CNT];
 static ModbusRTU mb;
 static uint32_t  modbusLastMsgSentTime = 0;
 static uint8_t   modbusFailureCnt[WB_CNT];
-static uint8_t	 modbusErrCnt[WB_CNT];
+static uint16_t  modbusErrCnt[WB_CNT];
 static uint8_t   msgCnt = 0;
 static uint8_t   id = 0;
 static uint8_t   msgCnt0_lastId = 255;
@@ -89,7 +89,7 @@ static bool cbWrite(Modbus::ResultCode event, uint16_t transactionId, void* data
 		}
 	} else {
 		// no failure
-		if (modbusFailureCnt[id] != 0 && modbusErrCnt[id] < 250) {
+		if (modbusFailureCnt[id] != 0) {
 			modbusErrCnt[id]++;
 		}		// really no failure
 		modbusFailureCnt[id] = 0;
@@ -220,6 +220,6 @@ uint8_t mb_getFailureCnt(uint8_t id) {
 }
 
 
-uint8_t mb_getErrCnt(uint8_t id) {
+uint16_t mb_getErrCnt(uint8_t id) {
 	return(modbusErrCnt[id]);
 }
