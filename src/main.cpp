@@ -21,6 +21,9 @@
 #include <webServer.h>
 #include <webSocket.h>
 
+const uint8_t m = 14;
+static bool _handlingOTA = false;
+
 
 void setup() {
 #if WALLE_VERSION_MAJOR == 1
@@ -83,14 +86,8 @@ void setup() {
   // btn_setup();
   pv_setup();
   lm_setup();
-#if WALLE_VERSION_MAJOR == 1
-  Serial1.print(F("Boot time: ")); Serial1.println(millis());
-  Serial1.print(F("Free heap: ")); Serial1.println(ESP.getFreeHeap());
-#endif
-#if WALLE_VERSION_MAJOR == 2
-  Serial.print(F("Boot time: ")); Serial.println(millis());
-  Serial.print(F("Free heap: ")); Serial.println(ESP.getFreeHeap());
-#endif
+  LOG(m, "Boot time: %ld ms", millis());
+  LOG(m, "Free heap: %ld Byte",ESP.getFreeHeap());
 }
 
 
