@@ -130,20 +130,7 @@ hawa-vx.74.2:
 - Anpassungen zur Veröffentlichung auf github.
 - 
 
-  
-hawa ToDo:
-- Anzeige über LED wenn openWB nicht erreichbar, dann Umschaltung Phasen per Taster(?)/WebUI erlauben
-- Wenn openWB nicht erreichbar Freigabe des WebUI zur lokalen Steuerung
-- Uhrzeit im Winter falsch, Uhr geht 1 Stunde vor; vermutlich liegt es an der Zeitbasis der FritzBox bzw. meines Linux mit openWB
-- und wie sieht's im Sommer aus?
-- ElegantOTA v3.x.x testen (https://docs.elegantota.pro/async-mode/) || läuft nur mit ESP8266 Platform Version 4.1.0, nicht mit 4.0.1.
-  Damit scheidet das vorerst aus, falls nicht die Web-Seiten Probleme vom Anfang zufällig auch behoben sind.
-  Allerdings ist jetzt die ESP8266 Platform Version 4.2.1 verfügbar: testen!
-- wbec-0.5.0_data_fix testen ()
-- 
-- Baustellen:
-  - webServer.cpp => /chargelog
-  - 
+hawa-lc4:  Depricated!!!  Hier keine weiteren Anpassungen mehr meinerseits da ElegantOTA v3.1.0 im Async-Mode unter ESP8266 Platform Version 4.2.1 absolut stabil läuft. Weiter wurde AsyncElegantOTA ebenfalls abgekündigt.
 
 (ab hier wieder Original von steff393)
 ## Kontakt
