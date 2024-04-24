@@ -6,3 +6,4 @@
 .vscode/ipch
 include/wlan_key.h
 output
+platformio_override.ini
