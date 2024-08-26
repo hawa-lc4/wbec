@@ -178,7 +178,7 @@ void pv_loop() {
 	}
 	if (pvModePrev > PV_OFF && pvMode == PV_OFF) { // Feature from #119
 		if (cfgPvOffCurrent == 0 || (cfgPvOffCurrent >= CURR_ABS_MIN && cfgPvOffCurrent <= CURR_ABS_MAX)) {
-			lm_storeRequest(pvWbId, cfgPvOffCurrent);
+			lm_storeRequest(BOXID, cfgPvOffCurrent);
 		}
 	}
 	pvModePrev = pvMode;

@@ -9,7 +9,7 @@
 #include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <globalConfig.h>
+#include "globalConfig.h"
 #include <goEmulator.h>
 // #include <inverter.h>
 #include <LittleFS.h>
@@ -21,12 +21,12 @@
 #include <pvAlgo.h>
 // #include <rfid.h>
 #include <SPIFFSEditor.h>
-#include <webServer.h>
+#include "webServer.h"
 #define WIFI_MANAGER_USE_ASYNC_WEB_SERVER
 #include <WiFiManager.h>
 
-// #define PFOX_JSON_LEN 256
-// #define GPIO_JSON_LEN  32
+#define PFOX_JSON_LEN 256
+#define GPIO_JSON_LEN  64
 
 static const uint8_t m = 3;
 unsigned long ota_progress_millis = 0;
