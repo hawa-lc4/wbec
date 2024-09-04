@@ -17,9 +17,9 @@
 #define PIN_DI              5   // GPIO5, NodeMCU pin D1
 #define PIN_RO              2   // GPIO2, NodeMCU pin D4
 #define PIN_DE_RE           4   // GPIO4, NodeMCU pin D2
-#define PIN_RST             0   // GPIO0, NodeMCU pin D3 
-#define PIN_PV_SWITCH      13   // GPIO0, NodeMCU pin D7 
-#define PIN_SS             15   // GPIO15,NodeMCU pin D8
+#define PIN_RST             0   // GPIO0, NodeMCU pin D3 (RFID oder Button)
+#define PIN_PV_SWITCH      13   // GPIO0, NodeMCU pin D7 (Button)
+#define PIN_SS             15   // GPIO15,NodeMCU pin D8 (RFID)
 
 
 extern char     cfgWbecVersion[];	           // wbec version
