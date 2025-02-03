@@ -52,10 +52,11 @@ extern uint16_t cfgFailsafeCurrent;          // <don't use - still beta> Reg. 26
 extern char     cfgMqttIp[16];               // IP address of MQTT broker, "" to disable MQTT
 extern uint16_t cfgMqttPort;                 // Port of MQTT broker (optional)
 extern char     cfgMqttUser[32];             // MQTT: Username
-extern char     cfgMqttPass[32];             // MQTT: Password
+extern char     cfgMqttPass[128];            // MQTT: Password
 extern uint8_t  cfgMqttLp[WB_CNT];           // Array with assignments to openWB loadpoints, e.g. [4,2,0,1]: Box0 = LP4, Box1 = LP2, Box2 = no MQTT, Box3 = LP1
 extern char     cfgMqttWattTopic[60];        // MQTT: Topic for setting the watt value for PV charging, default: "wbec/pv/setWatt"
 extern char     cfgMqttWattJson[30];         // MQTT: Optional: Element in a JSON string, which contains the power in watt, default: ""
+extern uint8_t  cfgMqttClientId;             // MQTT: Client-ID, default: 0 = random
 extern char     cfgNtpServer[30];            // NTP server
 extern char     cfgFoxUser[32];              // powerfox: Username
 extern char     cfgFoxPass[16];              // powerfox: Password
@@ -69,6 +70,11 @@ extern uint16_t cfgPvOffset;                 // PV charging: Offset for the avai
 extern uint8_t  cfgPvInvert;                 // PV charging: Invert the watt value (pos./neg.)
 extern uint8_t  cfgPvMinTime;                // PV charging: Minimum activation time (in minutes), 0 to disable
 extern uint8_t  cfgPvOffCurrent;             // PV charging: Current value which will be set, when mode changes to OFF (255 to disable)
+extern char     cfgPvHttpIp[16];             // IP   for generic HTTP call, "" to disable 
+extern char     cfgPvHttpPath[64];           // Path for generic http call, default: "/", example: /cm?cmd=status%2010
+extern char     cfgPvHttpJson[30];           // Element in a JSON string, which contains the power in watt, default: "", example: ",\"power_curr\":"
+extern char     cfgPvHttpJsonBatt[30];       // Element in a JSON string, which contains the power in watt, default: "", example: ",\"power_curr\":"
+extern uint16_t cfgPvHttpPort;               // Port for generic http call, default: 80
 extern uint16_t cfgTotalCurrMax;             // Total current limit for load management (in 0.1A) - !! Additional fuse mandatory !!
 extern uint8_t  cfgHwVersion;                // Selection of the used HW
 extern uint8_t  cfgWifiSleepMode;            // Set sleep type for power saving, recomendation is 255 (=no influence) or 0 (=WIFI_NONE_SLEEP)

@@ -13,7 +13,7 @@
 
 #define WATT_MIN        -100000		// 100kW Feed-in
 #define WATT_MAX         100000		// 100kW Consumption
-
+#define BOXID                 0		// only 1 box supported
 const uint8_t m = 11;
 
 RTCVars rtc;                               // used to memorize a few global variables over reset (not for cold boot / power on reset)
@@ -178,7 +178,7 @@ void pv_loop() {
 	}
 	if (pvModePrev > PV_OFF && pvMode == PV_OFF) { // Feature from #119
 		if (cfgPvOffCurrent == 0 || (cfgPvOffCurrent >= CURR_ABS_MIN && cfgPvOffCurrent <= CURR_ABS_MAX)) {
-			lm_storeRequest(BOXID, cfgPvOffCurrent);
+			lm_storeRequest(pvWbId, cfgPvOffCurrent);
 		}
 	}
 	pvModePrev = pvMode;
@@ -216,6 +216,18 @@ void pv_setMode(pvMode_t val) {
 	} else if (pvMode == PV_MIN_PV || pvMode == PV_ACTIVE) {
 		pc_requestPhase(1);
 	}
+	lastCall = 0;  // make sure to call pv_Algo() in the next pv_loop() call
+}
+
+
+uint8_t pv_getWbId() {
+	return(pvWbId);
+}
+
+
+void pv_setWbId(uint8_t val) {
+	pvWbId = val;
+	rtc.saveToRTC();     // memorize over reset
 	lastCall = 0;  // make sure to call pv_Algo() in the next pv_loop() call
 }
 

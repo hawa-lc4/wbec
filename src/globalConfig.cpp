@@ -9,8 +9,8 @@
 
 const uint8_t m = 5;
 
-// #define WBEC_VER(s) "v" MAJOR_VER_STRING(s) ".5.2"     		// token stringification orig
-#define WBEC_VER(s) "hawa-v" MAJOR_VER_STRING(s) ".74.3"     	// token stringification; based on wbec version v0.5.2
+// #define WBEC_VER(s) "v" MAJOR_VER_STRING(s) ".5.4"     		// token stringification orig
+#define WBEC_VER(s) "hawa-v" MAJOR_VER_STRING(s) ".74.4"     	// token stringification; based on wbec version v0.5.4
 #define MAJOR_VER_STRING(s) #s                         				// .. with two levels of macros
 
 char     cfgWbecVersion[]             = WBEC_VER(WALLE_VERSION_MAJOR); // wbec version
@@ -29,10 +29,11 @@ uint16_t cfgFailsafeCurrent;          // <don't use - still beta> Reg. 262: Fail
 char     cfgMqttIp[16];               // IP address of MQTT broker, "" to disable MQTT
 uint16_t cfgMqttPort;                 // Port of MQTT broker (optional)
 char     cfgMqttUser[32];             // MQTT: Username
-char     cfgMqttPass[32];             // MQTT: Password
+char     cfgMqttPass[128];            // MQTT: Password
 uint8_t  cfgMqttLp[WB_CNT];           // Array with assignments to openWB loadpoints, e.g. [4,2,0,1]: Box0 = LP4, Box1 = LP2, Box2 = no MQTT, Box3 = LP1
 char     cfgMqttWattTopic[60];        // MQTT: Topic for setting the watt value for PV charging, default: "wbec/pv/setWatt"
 char     cfgMqttWattJson[30];         // MQTT: Optional: Element in a JSON string, which contains the power in watt, default: ""
+uint8_t  cfgMqttClientId;             // MQTT: Client-ID, default: 0 = random
 char     cfgNtpServer[30];            // NTP server
 char     cfgFoxUser[32];              // powerfox: Username
 char     cfgFoxPass[16];              // powerfox: Password
@@ -46,6 +47,11 @@ uint16_t cfgPvOffset;                 // PV charging: Offset for the available p
 uint8_t  cfgPvInvert;                 // PV charging: Invert the watt value (pos./neg.)
 uint8_t  cfgPvMinTime;                // PV charging: Minimum activation time (in minutes), 0 to disable
 uint8_t  cfgPvOffCurrent;             // PV charging: Current value which will be set, when mode changes to OFF (255 to disable)
+char     cfgPvHttpIp[16];             // IP   for generic HTTP call, "" to disable 
+char     cfgPvHttpPath[64];           // Path for generic http call, default: "/", example: /cm?cmd=status%2010
+char     cfgPvHttpJson[30];           // Element in a JSON string, which contains the power in watt, default: "", example: ",\"power_curr\":"
+char     cfgPvHttpJsonBatt[30];       // Element in a JSON string, which contains the power in watt, default: "", example: ",\"power_curr\":"
+uint16_t cfgPvHttpPort;               // Port for generic http call, default: 80
 uint16_t cfgTotalCurrMax;             // Total current limit for load management (in 0.1A) - !! Additional fuse mandatory !!
 uint8_t  cfgHwVersion;                // Selection of the used HW
 uint8_t  cfgWifiSleepMode;            // Set sleep type for power saving, recomendation is 255 (=no influence) or 0 (=WIFI_NONE_SLEEP)
@@ -145,6 +151,7 @@ void loadConfig() {
 	strncpy(cfgMqttPass,        doc["cfgMqttPass"]           | "",                 sizeof(cfgMqttPass));
 	strncpy(cfgMqttWattTopic,   doc["cfgMqttWattTopic"]      | "wbec/pv/setWatt",  sizeof(cfgMqttWattTopic));
 	strncpy(cfgMqttWattJson,    doc["cfgMqttWattJson"]       | "",                 sizeof(cfgMqttWattJson));
+	cfgMqttClientId           = doc["cfgMqttClientId"]       | 0;
 	strncpy(cfgNtpServer,       doc["cfgNtpServer"]          | NTPserver,          sizeof(cfgNtpServer));
 	strncpy(cfgFoxUser,         doc["cfgFoxUser"]            | "",                 sizeof(cfgFoxUser));
 	strncpy(cfgFoxPass,         doc["cfgFoxPass"]            | "",                 sizeof(cfgFoxPass));
@@ -158,6 +165,11 @@ void loadConfig() {
 	cfgPvInvert               = doc["cfgPvInvert"]           | 0L;
 	cfgPvMinTime              = doc["cfgPvMinTime"]          | 0L;
 	cfgPvOffCurrent           = doc["cfgPvOffCurrent"]       | 255;
+	strncpy(cfgPvHttpIp,        doc["cfgPvHttpIp"]           | "",                 sizeof(cfgPvHttpIp));
+	strncpy(cfgPvHttpPath,      doc["cfgPvHttpPath"]         | "/",                sizeof(cfgPvHttpPath));
+	strncpy(cfgPvHttpJson,      doc["cfgPvHttpJson"]         | "",                 sizeof(cfgPvHttpJson));
+	strncpy(cfgPvHttpJsonBatt,  doc["cfgPvHttpJsonBatt"]     | "",                 sizeof(cfgPvHttpJsonBatt));
+	cfgPvHttpPort             = doc["cfgPvHttpPort"]         | 80;
 	cfgTotalCurrMax           = doc["cfgTotalCurrMax"]       | 0UL;
 	cfgHwVersion              = doc["cfgHwVersion"]          | 15;
 	cfgWifiSleepMode          = doc["cfgWifiSleepMode"]      | 0;
