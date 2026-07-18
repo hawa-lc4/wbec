@@ -10,7 +10,7 @@ Die Heidelberg Energy Control ist eine hochwertige Ladestation „made in German
 
 **wbec** gibt ihr WLAN und macht aus der soliden, aber „stummen" Wallbox eine vollwertige smarte Ladestation: Sie tankt dein Auto mit deinem **eigenen Sonnenstrom**, fügt sich in dein Smart Home ein – und läuft dabei **vollständig bei dir zu Hause**. Keine Cloud, kein Konto, kein Abo, kein Tracking. Deine Daten bleiben deine Daten.
 
-> **Vom Hersteller empfohlen:** wbec wird im offiziellen [Amperfied-Blog von Heidelberg](https://web.archive.org/web/20260116192803/https://www.amperfied.de/2022/11/21/wbec-fuer-heidelberg-wallbox-energy-control-blog/) vorgestellt.
+> **Vom Hersteller empfohlen:** wbec wird im offiziellen [Amperfied-Blog von Heidelberg](https://web.archive.org/web/20260116192803if_/https://www.amperfied.de/2022/11/21/wbec-fuer-heidelberg-wallbox-energy-control-blog/) vorgestellt.
 > Im Einsatz und bewährt seit 2021 · entwickelt und gefertigt in Deutschland.
 
 🔗 **[Homepage & Anleitung](https://steff393.github.io/wbec-site/)** · **[Preise & Bestellung](https://steff393.github.io/wbec-site/docs/bestellung.html)** · **[Wiki](https://github.com/steff393/wbec/wiki)**
