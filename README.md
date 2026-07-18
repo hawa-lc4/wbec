@@ -1,125 +1,112 @@
-**wbec** - WLAN-Anbindung der Heidelberg **W**all**B**ox **E**nergy **C**ontrol über ESP8266  
+# wbec – aus deiner Heidelberg Wallbox wird eine smarte Ladestation
 
-Die Heidelberg Wallbox Energy Control ist eine hochwertige Ladestation, bietet aber nur Modbus RTU als Schnittstelle.  
-Ziel des Projekts ist es, eine WLAN-Schnittstelle zu entwickeln um zusätzliche Funktionen (z.B. PV-Überschussladen) zu ermöglichen.  
+**WLAN & Smart Charging für die Heidelberg (Amperfied) Energy Control – PV-Überschussladen, komplett lokal, ohne Cloud.**
 
-[wbec Homepage](https://steff393.github.io/wbec-site/)  
-[Empfehlung im Heidelberg Amperfied Blog](https://www.amperfied.de/de/clever-laden/blog/wbec-fuer-heidelberg-wallbox-energy-control-blog/)  
-  
-![GitHub all releases](https://img.shields.io/github/downloads/steff393/wbec/total?color=blue&style=flat-square)  
+[![Downloads](https://img.shields.io/github/downloads/steff393/wbec/total?color=blue&style=flat-square)](https://github.com/steff393/wbec/releases)
+[![Stars](https://img.shields.io/github/stars/steff393/wbec?style=flat-square)](https://github.com/steff393/wbec/stargazers)
+[![Lizenz](https://img.shields.io/github/license/steff393/wbec?style=flat-square)](LICENSE)
 
-## Funktionen
-- Anbindung an openWB, EVCC, Solaranzeige
-- MQTT-Kommunikation mit openWB und EVCC (ideal für mehrere Ladestationen)
-- Steuerbar per Android App [Wallbox Steuerung](https://android.chk.digital/ecar-charger-control/) 
-- PV-Überschussladen, Zielladen, etc. mit den o.g. Steuerungen
-- Abfrage von Shelly 3EM, powerfox, Solaredge, Fronius, ...
-- RFID-Kartenleser zur Freischaltung der Wallbox mit gültiger Karte/Chip (spezielle HW nötig, s. Wiki)  
-- Ansteuerung aller verbundenen Ladestationen (bis zu 16 Follower am Modbus, bis zu 8 openWB-Ladepunkte)
-- Lokales Lastmanagement für zwei Wallboxen
-- Softwareupdate per WLAN (Over The Air), z.B. mit PlatformIO oder einfach per Browser (s. Wiki)
-- Weniger als 1W Strombedarf (trotz Ansteuerung von bis zu 16 Ladestationen)
-- [-> Neue Funktionen](https://steff393.github.io/wbec-site/features.html)
+Die Heidelberg Energy Control ist eine hochwertige Ladestation „made in Germany" – ab Werk bietet sie aber **nur eine Modbus-RTU-Schnittstelle** und keinerlei Netzwerkanbindung. Damit lädt sie stur mit einem fest eingestellten Strom, egal was deine PV-Anlage gerade liefert.
 
-## Kontakt
-Bei Fragen oder wenn ihr Unterstützung braucht gerne einfach eine Mail schicken (wbec393@gmail.com).    
-Bitte schaut auch ins [Wiki](https://github.com/steff393/wbec/wiki) und in meine anderen Projekte, z.B. den [SmartUploader](https://github.com/steff393/SmartUploader) zum Auslesen von Wechselrichtern und [hgdo](https://github.com/steff393/hgdo) zur Steuerung von Torantrieben.  
+**wbec** gibt ihr WLAN und macht aus der soliden, aber „stummen" Wallbox eine vollwertige smarte Ladestation: Sie tankt dein Auto mit deinem **eigenen Sonnenstrom**, fügt sich in dein Smart Home ein – und läuft dabei **vollständig bei dir zu Hause**. Keine Cloud, kein Konto, kein Abo, kein Tracking. Deine Daten bleiben deine Daten.
+
+> **Vom Hersteller empfohlen:** wbec wird im offiziellen [Amperfied-Blog von Heidelberg](https://www.amperfied.de/de/clever-laden/blog/wbec-fuer-heidelberg-wallbox-energy-control-blog/) vorgestellt.
+> Im Einsatz und bewährt seit 2021 · entwickelt und gefertigt in Deutschland.
+
+🔗 **[Homepage & Anleitung](https://steff393.github.io/wbec-site/)** · **[Preise & Bestellung](https://steff393.github.io/wbec-site/docs/bestellung.html)** · **[Wiki](https://github.com/steff393/wbec/wiki)**
+
+---
+
+## Was wbec kann
+
+- **PV-Überschussladen.** Statt teuren Netzstroms lädt dein Auto den Strom, den deine PV-Anlage gerade übrig hat. Der Ladestrom wird dynamisch an den Überschuss angepasst – [so rechnet sich das](https://steff393.github.io/wbec-site/docs/pvCalc.html).
+- **Dein Smart Home, deine Regeln.** Anbindung an Home Assistant, ioBroker, openWB, EVCC, Solaranzeige, Loxone, openHAB, IP-Symcon, Node-RED – per **MQTT, HTTP oder offener JSON-API**. Für Fremdsteuerungen zusätzlich go-eCharger-Emulation.
+- **Viele Wechselrichter & Smartmeter.** u.a. SolarEdge, Fronius, Kostal, SMA, Huawei, Victron, GoodWe, Shelly 3EM, powerfox – die vollständige getestete Liste steht auf der [Homepage](https://steff393.github.io/wbec-site/pvLaden.html). Vorab prüfen kannst du die Erreichbarkeit mit dem kostenlosen Tool [wbecModbus](https://github.com/steff393/wbecModbus).
+- **Lokal & offen.** Läuft ausschließlich in deinem Netz – erreichbar unter `http://wbec.local/`. Kein Cloud-Dienst, der abgeschaltet werden kann, keine Registrierung. Volle Datenhoheit.
+- **Mehrere Ladepunkte.** Steuert bis zu 16 Wallboxen am Modbus-Bus (bis zu 8 openWB-Ladepunkte), inkl. lokalem Lastmanagement für bis zu 2 Wallboxen.
+- **RFID-Freischaltung** der Wallbox per Karte/Chip (optionale Zusatz-Hardware, s. Wiki).
+- **Sparsam & wartungsarm.** Unter 1 W Verbrauch. Software-Updates bequem über den Browser (Over-the-Air).
+
+Die aktuellen und neuesten Funktionen findest du unter [→ Funktionen](https://steff393.github.io/wbec-site/docs/features.html).
+
+---
+
+## Zwei Wege zu wbec
+
+**1. Selbst bauen (Open Source).**
+Der komplette Quellcode für den ESP8266 liegt hier offen. Freuen würde ich mich über einen ⭐ hier auf GitHub.
+
+**2. Fertig kaufen – geprüft, sofort einsatzbereit, mit Support.**
+Nicht jeder will basteln. Die fertigen Module kommen **einzeln an der Heidelberg Energy Control getestet**, fertig programmiert, mit 12-seitiger Anleitung und persönlichem Support per E-Mail. Die aktuellen ESP32-Modelle bieten zudem Funktionen, die die freie Version nicht hat (z.B. Touch-Display, Ladelog, Zeitladen, §14a EnWG). Mit dem Kauf unterstützt du direkt die Weiterentwicklung.
+
+➡️ **[Modelle & Preise ansehen](https://steff393.github.io/wbec-site/docs/bestellung.html)** – Einstieg ab 25 € (Demo), Standardmodul ab 120 €.
+
+---
 
 ## Beispiele
-Einfaches Web-Interface (geeignet für alle Browser, Smartphone, PC, etc.):  
-`http://wbec.local/`  
-<p align="center"> 
-  <img src="https://i.ibb.co/3sg0YdL/wbec-web3.png"> 
+
+Einfaches Web-Interface (für jeden Browser, Smartphone wie PC) unter `http://wbec.local/`:
+
+<p align="center">
+  <img src="https://i.ibb.co/3sg0YdL/wbec-web3.png">
 </p>
 
-JSON API Schnittstelle:  
-`http://wbec.local/json`  
-```c++
+Offene JSON-API unter `http://wbec.local/json` – ein Auszug:
+
+```jsonc
 {
-  "wbec": {
-    "version": "v0.3.0"         // wbec version
-    "bldDate": "2021-06-10"     // wbec build date
-  },
+  "wbec": { "version": "v0.3.0", "bldDate": "2021-06-10" },
   "box": [
-    {                           // s. also https://wallbox.heidelberg.com/wp-content/uploads/2021/04/EC_ModBus_register_table_20210222.pdf
-      "busId": 1,               // Modbus bus id (as configured by DIP switches)
-      "version": "108",         // Modbus Register-Layouts Version, e.g. 1.0.8
-      "chgStat": 2,             // Charging State
-      "currL1": 0,              // L1 - Current RMS (in 0.1A)
-      "currL2": 0,              // L2 - Current RMS (in 0.1A)
-      "currL3": 0,              // L3 - Current RMS (in 0.1A)
-      "pcbTemp": 333,           // PCB-Temperatur (in 0.1°C)
-      "voltL1": 232,            // Voltage L1 - N rms in Volt
-      "voltL2": 9,              // Voltage L2 - N rms in Volt
-      "voltL3": 9,              // Voltage L3 - N rms in Volt
-      "extLock": 1,             // extern lock state
-      "power": 0,               // Power (L1+L2+L3) in VA
-      "energyP": 0,             // Energy since PowerOn (in kWh)
-      "energyI": 0.003,         // Energy since Installation (in kWh)
-      "currMax": 16,            // Hardware configuration maximal current (in 0.1A)
-      "currMin": 6,             // Hardware configuration minimal current (in 0.1A)
-      "logStr": "<item no> <mfgDate> <serial>",
-      "wdTmOut": 15000,         // ModBus-Master WatchDog Timeout (in ms)
-      "standby": 4,             // Standby Function Control 
-      "remLock": 1,             // Remote lock (only if extern lock unlocked) 
-      "currLim": 130,           // Maximal current command
-      "currFs": 0,              // FailSafe Current configuration 
-      "load": 0,                // wbec load management
-      "resCode": "0"            // Result code of last Modbus message (0 = ok)
-    },
-    {                           // Values of 2nd box ...
-      "busId": 2,
-      "version": "0",
-      "chgStat": 0,
-      ...
-      "load": 0,
-      "resCode": "e4"
+    {
+      "busId":   1,     // Modbus-Bus-ID (per DIP-Schalter)
+      "chgStat": 2,     // Ladezustand
+      "currL1":  0,     // Strom L1 (in 0,1 A)
+      "power":   0,     // Leistung L1+L2+L3 (in VA)
+      "energyI": 0.003, // Energie seit Installation (in kWh)
+      "currLim": 130,   // aktueller Ladestrom-Grenzwert (in 0,1 A)
+      "resCode": "0"    // Ergebnis der letzten Modbus-Nachricht (0 = ok)
     }
   ],
-  "modbus": {
-    "state": {
-      "lastTm": 2852819,        // Timestamp of last Modbus message (in ms)
-      "millis": 2855489         // Time since start of wbec (in ms)
-    }
-  },
-  "rfid": {
-    "enabled": true,
-    "release": false,
-    "lastId": "0cb6a781"
-  },
-  "wifi": {
-    "mac": "00:1F:3F:15:29:7E", // wbec MAC address
-    "rssi": -76,                // WiFi signal
-    "signal": 48,               // WiFi signal quality (in %)
-    "channel": 11               // WiFi channel
-  }
+  "wifi": { "rssi": -76, "signal": 48, "channel": 11 }
 }
 ```
 
-Maximalen Ladestrom einstellen:
-```c++
-http://192.168.xx.yy/json?currLim=120      --> set current limit to 12A (on the box with id=0, i.e. ModBus Bus-ID=1)
-http://192.168.xx.yy/json?currLim=60&id=2  --> set current limit to 6A on the box with id=2 (i.e. ModBus Bus-ID=3)
+Maximalen Ladestrom setzen (hier: 12 A auf der Box mit Bus-ID 1):
+
+```text
+http://wbec.local/json?currLim=120
+http://wbec.local/json?currLim=60&id=2   // 6 A auf der Box mit id=2
 ```
 
+---
+
+## Kontakt & Support
+
+Fragen, Probleme oder unsicher, ob dein Setup passt? Schreib mir einfach eine Mail an **wbec393@gmail.com** – ich helfe gerne weiter. Ein Blick ins [Wiki](https://github.com/steff393/wbec/wiki) beantwortet die häufigsten Fragen bereits vorab.
+
+Weitere Projekte von mir: [wbecModbus](https://github.com/steff393/wbecModbus) (Modbus-Kompatibilitätscheck) und [selbst-ableser.de](https://selbst-ableser.de) (Heizkostenverteiler und Wasserzähler selbst verwalten).
+
+---
+
 ## Danksagung
-Folgende Projekte wurden in wbec genutzt/angepasst:  
-- [modbus-esp8266](https://github.com/emelianov/modbus-esp8266)
-- [ESP Async WebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
-- [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
-- [PubSubClient](https://github.com/knolleary/PubSubClient)
-- [NTPClient](https://github.com/arduino-libraries/NTPClient)
-- [MFRC522](https://github.com/miguelbalboa/MFRC522)
-- [RTCVars](https://github.com/highno/RTCVars)
-- [arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets)
-- [WiFiManager](https://github.com/tzapu/WiFiManager)
-- [Web Interface](https://RandomNerdTutorials.com)
-- [A Beginner's Guide to the ESP8266 - article](https://github.com/tttapa/ESP8266)
-- [AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA)
 
-Ein besonderer Dank ergeht an die frühen Tester und Unterstützer: mli987, profex1337, Clanchef und viele mehr!
+wbec nutzt und passt folgende Open-Source-Projekte an:
+[modbus-esp8266](https://github.com/emelianov/modbus-esp8266) ·
+[ESP Async WebServer](https://github.com/me-no-dev/ESPAsyncWebServer) ·
+[ArduinoJson](https://github.com/bblanchon/ArduinoJson) ·
+[PubSubClient](https://github.com/knolleary/PubSubClient) ·
+[NTPClient](https://github.com/arduino-libraries/NTPClient) ·
+[MFRC522](https://github.com/miguelbalboa/MFRC522) ·
+[RTCVars](https://github.com/highno/RTCVars) ·
+[arduinoWebSockets](https://github.com/Links2004/arduinoWebSockets) ·
+[WiFiManager](https://github.com/tzapu/WiFiManager) ·
+[AsyncElegantOTA](https://github.com/ayushsharma82/AsyncElegantOTA) ·
+Web-Interface nach [RandomNerdTutorials](https://RandomNerdTutorials.com)
 
-## Unterstützung des Projektes
-wbec gefällt dir? Dann gib dem Projekt [einen Stern auf GitHub](https://github.com/steff393/wbec/stargazers)!  
+Besonderer Dank an die frühen Tester und Unterstützer: mli987, profex1337, Clanchef und viele mehr!
 
-[![Star History Chart](https://api.star-history.com/svg?repos=steff393/wbec&type=Date)](https://star-history.com/#steff393/wbec&Date)
+---
+
+## Projekt unterstützen
+
+wbec gefällt dir? Dann gib dem Projekt einen [⭐ auf GitHub](https://github.com/steff393/wbec/stargazers) – oder [hol dir ein fertiges Modul](https://steff393.github.io/wbec-site/docs\bestellung.html) und unterstütze so die Weiterentwicklung.
