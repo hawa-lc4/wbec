@@ -4,7 +4,7 @@
 #define GLOBALCONFIG_H
 
 #define WB_CNT             16   // max. possible number of wallboxes in the system (NodeMCU has Bus-ID = 0)
-#define OPENWB_MAX_LP       8   // maximum supported loadpoints by openWB
+#define OPENWB_MAX_LP      99   // maximum supported loadpoints by openWB
 #define REG_WD_TIME_OUT   257   // modbus register for "ModBus-Master Watchdog Timeout in ms"
 #define REG_STANDBY_CTRL  258   // modbus register for "Standby Function Control"
 #define REG_REMOTE_LOCK   259   // modbus register for "Remote lock (only if extern lock unlocked)"
