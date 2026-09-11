@@ -4,6 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>wbec Preis</title>
+	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 	<meta name="description" content="Heidelberg Wallbox Energy Control">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +16,8 @@
 </head>
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-	<symbol id="flash" viewBox="0 0 19 36"><g transform="translate(0,36) scale(0.1,-0.1)"><path d="M87 258 l-86 -103 34 -3 33 -3 -29 -71 c-16 -39 -28 -73 -26 -75 2 -2 43 43 90 99 l87 103 -34 3 -34 3 29 71 c16 39 28 73 26 75 -2 1 -42 -43 -90 -99z"/></g></symbol>
+	<symbol id="euro" viewBox="0 0 24 24"><path d="M18 4.5 A9.5 9.5 0 1 0 18 19.5 L15.4 16.9 A6.3 6.3 0 1 1 15.4 7.1 Z"/><rect x="1.5" y="9.3" width="13" height="1.4" rx="0.7"/><rect x="1.5" y="13.3" width="13" height="1.4" rx="0.7"/></symbol>
+	<symbol id="clock" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12,2 A10,10 0 1,0 12,22 A10,10 0 1,0 12,2 Z M12,5 A7,7 0 1,0 12,19 A7,7 0 1,0 12,5 Z"/><rect x="11.3" y="5.5" width="1.4" height="6.5"/><rect x="12" y="11.3" width="7" height="1.4"/><circle cx="12" cy="12" r="1.3"/></symbol>
 </svg>
 
 <body>
@@ -32,13 +34,13 @@
 			<button class="top-nav-item" top-nav-link="/"         >&times;</button>
 		</nav>
 		<h1>wbec</h1>
-		<h2>Dynamisches Preisladen</h2>
+		<h2>Dynamischer Tarif</h2>
 	</header>
 
 	<section class="box-group" id="licWarn">
 		<div class="box">
 			<div class="box-content enwgWarning" style="color:var(--theme-color-7)">
-				Dynamisches Preisladen ist nicht freigeschaltet. Die Preise werden angezeigt,
+				Dynamischer Tarif ist nicht freigeschaltet. Die Preise werden angezeigt,
 				aber die Wallbox wird nicht automatisch gesteuert.
 			</div>
 		</div>
@@ -47,14 +49,14 @@
 	<section class="box-group">
 		<div class="box">
 			<h3 class="box-header">
-				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Automatik</span>
+				<svg class="clock"><use xlink:href="#clock"></use></svg>&nbsp;<span>Automatik</span>
 			</h3>
 			<div class="box-content">
 				<button class="btn" data-dyn-mode="1">
-					<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Aus</span>
+					<svg class="clock"><use xlink:href="#clock"></use></svg>&nbsp;<span>Aus</span>
 				</button>
 				<button class="btn" data-dyn-mode="2">
-					<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Preis</span>
+					<svg class="euro"><use xlink:href="#euro"></use></svg>&nbsp;<span>Preis</span>
 				</button>
 			</div>
 		</div>
@@ -63,7 +65,7 @@
 	<section class="box-group">
 		<div class="box">
 			<h3 class="box-header">
-				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Status</span>
+				<svg class="euro"><use xlink:href="#euro"></use></svg>&nbsp;<span>Status</span>
 			</h3>
 			<div class="box-content">
 				<span class="value"><span data-value="dynState">-</span></span>
@@ -71,7 +73,7 @@
 		</div>
 		<div class="box">
 			<h3 class="box-header">
-				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Aktueller Preis</span>
+				<svg class="euro"><use xlink:href="#euro"></use></svg>&nbsp;<span>Aktueller Preis</span>
 			</h3>
 			<div class="box-content">
 				<span class="value"><span data-value="dynPrice">-</span> ct/kWh</span>
@@ -79,7 +81,7 @@
 		</div>
 		<div class="box">
 			<h3 class="box-header">
-				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Strategie</span>
+				<svg class="euro"><use xlink:href="#euro"></use></svg>&nbsp;<span>Strategie</span>
 			</h3>
 			<div class="box-content">
 				<span class="value"><span data-value="dynStrat">-</span></span>
@@ -87,7 +89,7 @@
 		</div>
 		<div class="box">
 			<h3 class="box-header">
-				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Nächstes Fenster</span>
+				<svg class="clock"><use xlink:href="#clock"></use></svg>&nbsp;<span>Nächstes Fenster</span>
 			</h3>
 			<div class="box-content">
 				<span class="value"><span data-value="dynWindow">-</span></span>
