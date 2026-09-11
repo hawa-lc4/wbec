@@ -39,7 +39,7 @@ function setSectionVisibility(sectionId, isVisible) {
 
 // Default settings 24.03.2024
 const defaultObj = JSON.parse(
-	'{"cfgApSsid":"wbec","cfgApPass":"wbec1234","cfgCntWb":1,"cfgMbCycleTime":10,"cfgMbDelay":100,"cfgMbTimeout":60000,"cfgStandby":4,"cfgFailsafeCurrent":0,"cfgMqttIp":"","cfgMqttLp":[],"cfgMqttPort":1883,"cfgMqttUser":"","cfgMqttPass":"","cfgMqttWattTopic":"wbec/pv/setWatt","cfgMqttWattJson":"","cfgMqttClientId":0,"cfgNtpServer":"europe.pool.ntp.org","cfgFoxUser":"","cfgFoxPass":"","cfgFoxDevId":"","cfgPvActive":0,"cfgPvCycleTime":30,"cfgPvLimStart":61,"cfgPvLimStop":50,"cfgPvPhFactor":69,"cfgPvOffset":0,"cfgPvCalcMode":0,"cfgPvInvert":0,"cfgPvInvertBatt":0,"cfgPvMinTime":0,"cfgPvOffCurrent":255,"cfgPvHttpIp":"","cfgPvHttpPath":"/","cfgPvHttpJson":"","cfgPvHttpJsonBatt":"","cfgPvHttpPort":80,"cfgTotalCurrMax":0,"cfgLmChargeState":4,"cfgHwVersion":15,"cfgWifiSleepMode":0,"cfgLoopDelay":255,"cfgKnockOutTimer":0,"cfgShellyIp":"","cfgInverterIp":"","cfgInverterType":0,"cfgInverterPort":0,"cfgInverterAddr":0,"cfgInvSmartAddr":0,"cfgInvRegPowerInv":0,"cfgInvRegPowerInvS":0,"cfgInvRegPowerMet":0,"cfgInvRegPowerMetS":0,"cfgInvRegToGrid":0,"cfgInvRegFromGrid":0,"cfgInvRegInputGrid":0,"cfgInvRegBattery":0,"cfgInvRegBattery16":0,"cfgBootlogSize":2000,"cfgBtnDebounce":0,"cfgWifiConnectTimeout":10,"cfgResetOnTimeout":0,"cfgEnergyOffset":0,"cfgDisplayAutoOff":2,"cfgWifiAutoReconnect":1,"cfgWifiScanMethod":0,"cfgLedIp":1,"cfgWifiOff":0,"cfgChargeLog":0,"cfgWallboxIp":"","cfgWallboxPort":502,"cfgWallboxAddr":1,"cfgRfidCurr":160,"cfgAutoEnable":1,"cfgEnwgSource":0,"cfgEnwgBox":0,"cfgWbecMac":237,"cfgWbecIp":""}'
+	'{"cfgApSsid":"wbec","cfgApPass":"wbec1234","cfgCntWb":1,"cfgMbCycleTime":10,"cfgMbDelay":100,"cfgMbTimeout":60000,"cfgStandby":4,"cfgFailsafeCurrent":0,"cfgMqttIp":"","cfgMqttLp":[],"cfgMqttPort":1883,"cfgMqttUser":"","cfgMqttPass":"","cfgMqttWattTopic":"wbec/pv/setWatt","cfgMqttWattJson":"","cfgMqttClientId":0,"cfgHaDiscovery":0,"cfgNtpServer":"europe.pool.ntp.org","cfgFoxUser":"","cfgFoxPass":"","cfgFoxDevId":"","cfgPvActive":0,"cfgPvCycleTime":30,"cfgPvLimStart":61,"cfgPvLimStop":50,"cfgPvPhFactor":69,"cfgPvOffset":0,"cfgPvCalcMode":0,"cfgPvInvert":0,"cfgPvInvertBatt":0,"cfgPvMinTime":0,"cfgPvOffCurrent":255,"cfgPvHttpIp":"","cfgPvHttpPath":"/","cfgPvHttpJson":"","cfgPvHttpJsonBatt":"","cfgPvHttpPort":80,"cfgTotalCurrMax":0,"cfgLmChargeState":4,"cfgHwVersion":15,"cfgWifiSleepMode":0,"cfgLoopDelay":255,"cfgKnockOutTimer":0,"cfgShellyIp":"","cfgTibberIp":"","cfgInverterIp":"","cfgInverterType":0,"cfgInverterPort":0,"cfgInverterAddr":0,"cfgInvSmartAddr":0,"cfgInvRegPowerInv":0,"cfgInvRegPowerInvS":0,"cfgInvRegPowerMet":0,"cfgInvRegPowerMetS":0,"cfgInvRegToGrid":0,"cfgInvRegFromGrid":0,"cfgInvRegInputGrid":0,"cfgInvRegBattery":0,"cfgInvRegBattery16":0,"cfgBootlogSize":2000,"cfgBtnDebounce":0,"cfgWifiConnectTimeout":10,"cfgResetOnTimeout":0,"cfgEnergyOffset":0,"cfgDisplayAutoOff":2,"cfgWifiAutoReconnect":1,"cfgWifiScanMethod":0,"cfgLedIp":1,"cfgWifiOff":0,"cfgChargeLog":0,"cfgWallboxIp":"","cfgWallboxPort":502,"cfgWallboxAddr":1,"cfgRfidCurr":160,"cfgAutoEnable":1,"cfgEnwgSource":0,"cfgEnwgBox":0,"cfgDynActive":0,"cfgDynProvider":0,"cfgDynToken":"","cfgDynWbId":0,"cfgDynCurr":160,"cfgDynMode":0,"cfgDynHours":4,"cfgDynMaxPrice":100,"cfgDynMarkup":0,"cfgDynCycleTime":60,"cfgNtfyUrl":"","cfgWbecMac":237,"cfgWbecIp":""}'
 );
 
 const descObj = {
@@ -59,6 +59,7 @@ const descObj = {
 	cfgMqttWattTopic       :"MQTT: Topic, um den Wert Bezug/Einspeisung zu empfangen",
 	cfgMqttWattJson        :"MQTT: Suchstring, um den Wert Bezug/Einspeisung zu finden",
 	cfgMqttClientId        :"MQTT: Client-ID, 0 = zufällig",
+	cfgHaDiscovery         :"MQTT: Home Assistant Auto-Discovery aktivieren (1)",
 	cfgNtpServer           :"NTP-Server",
 	cfgFoxUser             :"Powerfox: Benutzername",
 	cfgFoxPass             :"Powerfox: Passwort",
@@ -73,6 +74,7 @@ const descObj = {
 	cfgPvInvert            :"PV-Überschussregelung: Vorzeichen von Bezug/Einspeisung invertieren (1)",
 	cfgPvInvertBatt        :"PV-Überschussregelung: Vorzeichen von Batterieleistung invertieren (1)",
 	cfgPvMinTime           :"[min] PV-Überschussregelung: Minimale Aktivierungszeit",
+	cfgPvMinCurrent        :"[100mA] PV-Überschussregelung: Minimaler Strom, der im Modus MinPV gesetzt wird",
 	cfgPvOffCurrent        :"[100mA] PV-Überschussregelung: Strom, welcher bei Wechsel auf Modus Aus eingestellt wird",
 	cfgPvHttpIp            :"PV-Überschussregelung HTTP: IP-Adresse, um den Wert Bezug/Einspeisung abzufragen",
 	cfgPvHttpPath          :"PV-Überschussregelung HTTP: URL, um den Wert Bezug/Einspeisung abzufragen",
@@ -86,6 +88,7 @@ const descObj = {
 	cfgLoopDelay           :"(!) intern",
 	cfgKnockOutTimer       :"(!) [min] Zyklischer Reset von wbec alle xx Minuten",
 	cfgShellyIp            :"Shelly: IP-Adresse, um den Wert Bezug/Einspeisung abzufragen",
+	cfgTibberIp            :"Tibber Pulse (lokal entsperrt): IP-Adresse der Bridge, s. Wiki",
 	cfgInverterIp          :"Modbus-TCP: IP-Adresse, um den Wert Bezug/Einspeisung abzufragen",
 	cfgInverterType        :"Modbus-TCP: Typ, s. Wiki",
 	cfgInverterPort        :"Modbus-TCP: Port, s. Wiki",
@@ -118,8 +121,19 @@ const descObj = {
 	cfgAutoEnable          :"1: nach Wakeup von Standby den letzten Stromwert wiederherstellen",
 	cfgEnwgSource          :"§14a EnWG: Quelle: 0:inaktiv, 1:Schließer, 2:Öffner, 3:HTTP, Achtung: permanent!",
 	cfgEnwgBox             :"§14a EnWG: Auswahl der Box für die Leistungsreduzierung",
+	cfgDynActive           :"Dyn. Preisladen: 0:inaktiv, 1:aktiv (Freischaltung nötig)",
+	cfgDynProvider         :"Dyn. Preisladen: Quelle 0:aWATTar DE, 1:aWATTar AT, 2:Tibber",
+	cfgDynToken            :"Dyn. Preisladen: Tibber API-Token (nur Quelle 2)",
+	cfgDynWbId             :"Dyn. Preisladen: Index der gesteuerten Wallbox (0-basiert)",
+	cfgDynCurr             :"[100mA] Dyn. Preisladen: Ladestrom in den günstigen Fenstern, z.B. 160=16A",
+	cfgDynMode             :"Dyn. Preisladen: 0:günstigste Stunden, 1:Preis unter Schwelle",
+	cfgDynHours            :"Dyn. Preisladen: Anzahl der günstigsten Stunden pro Tag (Modus 0)",
+	cfgDynMaxPrice         :"[0.1 ct/kWh] Dyn. Preisladen: Preisschwelle (Modus 1), z.B. 100=10,0 ct/kWh",
+	cfgDynMarkup           :"[0.1 ct/kWh] Dyn. Preisladen: Aufschlag auf den Börsenpreis (Steuern/Abgaben)",
+	cfgDynCycleTime        :"[s] Dyn. Preisladen: Zykluszeit der Regelung",
 	cfgWbecMac             :"(!) wbecLan: Letztes Byte der wbec-MAC-Adresse ändern (dez.)",
 	cfgWbecIp              :"(!) wbecLan: stat. IP-Adresse für wbec, z.B. 192.168.178.123",
+	cfgNtfyUrl             :"ntfy.sh URL, z.B. http://ntfy.sh/geheimesTopic282",
 }
 
 

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#6a6a6a">
+	<title>wbec Update</title>
+	<link rel="stylesheet" href="web.css">
+</head>
+
+<body>
+	<div class="container">
+		<header>
+			<nav class="top-nav">
+				<button class="top-nav-text" top-nav-link="/log.html">Log</button>
+				<button class="top-nav-text" top-nav-link="/time.html">Zeit</button>
+				<button class="top-nav-text" top-nav-link="/dyn.html">Dyn</button>
+				<button class="top-nav-text" top-nav-link="/cfg.html">Config</button>
+				<button class="top-nav-text" top-nav-link="/json">Json</button>
+				<button class="top-nav-text" top-nav-link="/edit">Edit</button>
+				<button class="top-nav-text" top-nav-link="/update">Update</button>
+				<button class="top-nav-item" top-nav-link="/">&times;</button>
+			</nav>
+			<h1>wbec</h1>
+			<h2>Heidelberg Wallbox Energy Control</h2>
+		</header>
+		<section class="box-group">
+			<div class="box update-page">
+				<h3 class="box-header">
+					<span>Firmware Update</span>
+				</h3>
+
+				<div class="box-content">
+					<div class="type-selector">
+						<label>
+							<input type="radio" name="type" value="fw" checked>
+							Firmware (*firmware*.bin)
+						</label>
+						<label>
+							<input type="radio" name="type" value="fs">
+							Dateisystem (*littlefs*.bin)
+						</label>
+					</div>
+					<div id="versionInfo" class="version-info">Version: wird geladen…</div>
+					<input type="file" id="file" accept=".bin,.bin.gz">
+					<progress id="bar" value="0" max="100" hidden></progress>
+					<div id="st"></div>
+				</div>
+			</div>
+		</section>
+	</div>
+
+	<script>
+	const $=id=>document.getElementById(id);
+	document.querySelectorAll('[top-nav-link]').forEach(b=>b.onclick=()=>location.href=b.getAttribute('top-nav-link'));
+
+	async function getVersion(){
+		try {
+			const r = await fetch('/version', { cache: 'no-store' });
+			if (r.ok) {
+				const text = (await r.text()).trim();
+				if (text) return text;
+			}
+		} catch {}
+
+		try {
+			const r = await fetch('/json', { cache: 'no-store' });
+			if (!r.ok) throw new Error();
+			const data = await r.json();
+			const findVersion = (obj) => {
+						if (!obj || typeof obj !== 'object') return null;
+						if ('version' in obj && typeof obj.version === 'string') return obj.version;
+						for (const key in obj) {
+								const res = findVersion(obj[key]);
+								if (res) return res;
+						}
+						return null;
+				};
+				return findVersion(data) || "";
+		} catch {
+			return "";
+		}
+	}
+
+	function setVersionText(text){
+		const info=$('versionInfo');
+		if (info) info.textContent = text;
+	}
+
+	getVersion().then(v => {
+		setVersionText(v ? 'Version: ' + v : 'Version: nicht verfügbar');
+		$('st').textContent = "Bereit";	
+	});
+
+	function calcMD5(buffer){
+		const words=new Uint32Array((buffer.byteLength+8)>>2),bytes=new Uint8Array(buffer);
+		new Uint8Array(words.buffer).set(bytes);
+		words[buffer.byteLength>>2]|=0x80<<((buffer.byteLength&3)<<3);
+		words[words.length-2]=buffer.byteLength*8;
+		let a=1732584193,b=-271733879,c=-1732584194,d=271733878;
+		let r=[7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+		let k=[2147483647,-1110283944,336877029,-2054922799,-170416952,165796510,-1069501632,-643717713,391444016,-1530992060,-90404452,713232373,-1926607734,-1444681467,1348503025,-245109404,
+			-28951756,-1151922529,203808000,-358537222,-722521979,76029189,-640364487,-421815835,-210264020,1146305607,-1994743550,-1044525330,606105819,-394564324,-168486736,-2383444,-1416354905,
+			1236535329,-1653400261,-51403784,1735328473,-1926607734,-303748332,-285264416,-125741757,1800603840,-40341101,-1502002290,1236535329,-1653400261,-51403784,1735328473];
+		for(let i=0;i<words.length;i+=16){let aa=a,bb=b,cc=c,dd=d;for(let j=0;j<64;j++){let f,g;if(j<16){f=(b&c)|(~b&d);g=j}else if(j<32){f=(d&b)|(~d&c);g=(5*j+1)%16}else if(j<48){f=b^c^d;g=(3*j+5)%16}else{f=c^(b|~d);g=(7*j)%16}const temp=d;d=c;c=b;b=b+Math.floor(a+f+(k[j]||0)+words[i+g])<<r[j];a=temp}a+=aa;b+=bb;c+=cc;d+=dd}
+		return[a,b,c,d].map(v=>("00000000"+(v>>>0).toString(16)).slice(-8)).join("");
+	}
+
+	function detectType(filename){
+		const n = filename.toLowerCase();
+		if (/firmware.*\.bin(\.gz)?$/.test(n)) return 'fw';
+		if (/littlefs.*\.bin(\.gz)?$/.test(n)) return 'fs';
+		return null;
+	}
+
+	$('file').onchange = async () => {
+		if (!$('file').files.length)
+			return;
+
+		const file = $('file').files[0];
+
+		const detected = detectType(file.name);
+		if (detected) {
+			document.querySelector(`input[name=type][value="${detected}"]`).checked = true;
+		} else {
+			const currentType = document.querySelector('input[name=type]:checked').value;
+			const currentLabel = currentType === 'fw' ? 'Firmware' : 'Dateisystem';
+			const proceed = confirm(
+				`Der Dateiname "${file.name}" passt zu keinem der bekannten Muster ` +
+				`(*firmware*.bin für Firmware, littlefs.bin für Dateisystem).\n\n` +
+				`Aktuell ausgewählt: ${currentLabel}.\n\nTrotzdem fortfahren?`
+			);
+			if (!proceed) {
+				$('file').value = "";
+				return;
+			}
+		}
+
+		const type = document.querySelector('input[name=type]:checked').value;
+		const bar = $('bar');
+		const st = $('st');
+
+		bar.hidden = false;
+		bar.value = 0;
+		$('file').disabled = true;
+		st.textContent = "Berechne Prüfsumme...";
+
+		const buffer = await file.arrayBuffer();
+		const md5Hex = calcMD5(buffer);
+		const fd = new FormData();
+		fd.append("type", type);
+		fd.append("MD5", md5Hex);
+		fd.append("file", file, file.name);
+		fd.append("update", file, file.name);
+
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", "/update?type=" + type);
+		xhr.setRequestHeader("x-MD5", md5Hex);
+
+		xhr.upload.onprogress = e => {
+			if (!e.lengthComputable)
+				return;
+
+			const p = e.loaded / e.total * 100;
+			bar.value = p;
+			st.textContent = Math.round(p) + " %";
+		};
+
+		xhr.onload = () => {
+			const ok = xhr.status === 200 &&
+				(xhr.responseText.includes("success") || xhr.responseText.includes("OK"));
+			const fileInput = $('file');
+
+			if (ok) {
+				st.textContent = "Erfolg – Neustart… Bitte warten";
+				bar.hidden = true;
+				bar.value = 0;
+
+				const started = Date.now();
+				const tryAgain = async () => {
+						const version = await getVersion();
+						if (version) {
+								setVersionText('Version: ' + version);
+								fileInput.disabled = false;
+								fileInput.value = "";
+								document.querySelector('input[name=type][value="fw"]').checked = true;
+								st.textContent = "Bereit";
+						} else if (Date.now() - started < 60000) {
+								setTimeout(tryAgain, 2000);
+						} else {
+								st.textContent = "Neustart dauert länger als erwartet – bitte die Seite neu laden";
+								fileInput.disabled = false;
+								fileInput.value = "";
+						}
+				};
+				setTimeout(tryAgain, 2000); 
+			} else {
+				st.textContent = "Fehler: " + xhr.responseText;
+				fileInput.disabled = false;
+				fileInput.value = "";
+			}
+		};
+
+		xhr.onerror = () => {
+			st.textContent = "Verbindungsfehler";
+			$('file').disabled = false;
+			$('file').value = "";
+		};
+
+		xhr.send(fd);
+	};
+	</script>
+
+</body>
+</html>

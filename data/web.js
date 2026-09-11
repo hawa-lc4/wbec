@@ -37,6 +37,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	let Socket;
 	let elementCurrentSlider   = document.getElementById('slideCurr');
 	let pvModeButtons          = document.querySelectorAll('[data-pv-mode]');
+	let dynModeButtons         = document.querySelectorAll('[data-dyn-mode]');
 	let wallboxButtons         = document.querySelectorAll('[data-wallbox-id]');
 	let valueContainerElements = document.querySelectorAll('[data-value]');
 
@@ -47,6 +48,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		setSectionVisibility('connection', false);
 		setSectionVisibility('boxSelection', wallboxButtons.length > 1);
 		setSectionVisibility('pvLaden', false);
+		setSectionVisibility('dynLaden', false);
 		initNavBar();
 		document.getElementById('btnExit').addEventListener('click', exit);
 
@@ -115,6 +117,13 @@ window.addEventListener('DOMContentLoaded', () => {
 			case  7: /*C2*/ carStat = 'ja,  mit Ladeanf.'; wbStat = 'ja'; break;
 			default: carStat = message.chgStat; wbStat = '-';
 		}
+		let dynState = '-';
+		if (message.dynMode === 2) {
+			dynState = message.dynChg ? 'lädt (günstig)' : 'wartet auf günstiges Fenster';
+		} else if (message.dynMode === 1) {
+			dynState = 'aus';
+		}
+
 		assignValuesToHtml({
 			carStat: carStat,
 			wbStat:  wbStat,
@@ -124,6 +133,8 @@ window.addEventListener('DOMContentLoaded', () => {
 			watt:    message.watt / 1000,
 			enwgErr: message.enwgErr ? "Fehler in der Funktion §14a EnWG. <br>Die Anlage ist nicht mehr EnWG-konform (" + message.enwgErr + "). " : "",
 			timeNow: message.timeNow,
+			dynState: dynState,
+			dynPrice: (message.dynPrice !== undefined) ? (message.dynPrice / 10).toFixed(1) : '-',
 		})
 
 		if (!sliderSliding) {
@@ -136,9 +147,13 @@ window.addEventListener('DOMContentLoaded', () => {
 		for (const element of pvModeButtons) {
 			setClass(element, 'active', message.pvMode === parseInt(element.getAttribute('data-pv-mode')));
 		}
+		for (const element of dynModeButtons) {
+			setClass(element, 'active', message.dynMode === parseInt(element.getAttribute('data-dyn-mode')));
+		}
 		setSectionVisibility('enwg14a',    message.enwg14a ==  1);
 		setSectionVisibility('connection', message.failCnt >= 10);
 		setSectionVisibility('pvLaden', message.pvMode >= 1 && message.pvMode <= 3);
+		setSectionVisibility('dynLaden', message.dynMode >= 1 && message.dynMode <= 2);
 
 		for (const element of wallboxButtons) {
 			setClass(element, 'active', message.id === parseInt(element.getAttribute('data-wallbox-id')));
@@ -155,8 +170,10 @@ window.addEventListener('DOMContentLoaded', () => {
 			currLim: '-',
 			watt:    '-',
 			timeNow: '-',
+			dynState: '-',
+			dynPrice: '-',
 		})
-		for (const element of document.querySelectorAll('[data-wallbox-id],[data-pv-mode]')) {
+		for (const element of document.querySelectorAll('[data-wallbox-id],[data-pv-mode],[data-dyn-mode]')) {
 			setClass(element, 'active', false);
 			setClass(element, 'disabled', true);
 		}

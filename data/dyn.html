@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+	<meta charset="utf-8">
+	<title>wbec Preis</title>
+	<meta name="description" content="Heidelberg Wallbox Energy Control">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<link rel="stylesheet" href="web.css">
+	<script src="dyn.js"    type="module"></script>
+
+	<meta name="theme-color" content="#6a6a6a">
+</head>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+	<symbol id="flash" viewBox="0 0 19 36"><g transform="translate(0,36) scale(0.1,-0.1)"><path d="M87 258 l-86 -103 34 -3 33 -3 -29 -71 c-16 -39 -28 -73 -26 -75 2 -2 43 43 90 99 l87 103 -34 3 -34 3 29 71 c16 39 28 73 26 75 -2 1 -42 -43 -90 -99z"/></g></symbol>
+</svg>
+
+<body>
+<div class="container">
+	<header>
+		<nav class="top-nav">
+			<button class="top-nav-text" top-nav-link="/log.html" >Log</button>
+			<button class="top-nav-text" top-nav-link="/time.html">Zeit</button>
+			<button class="top-nav-text" top-nav-link="/dyn.html" >Dyn</button>
+			<button class="top-nav-text" top-nav-link="/cfg.html" >Config</button>
+			<button class="top-nav-text" top-nav-link="/json"     >Json</button>
+			<button class="top-nav-text" top-nav-link="/edit"     >Edit</button>
+			<button class="top-nav-text" top-nav-link="/update"   >Update</button>
+			<button class="top-nav-item" top-nav-link="/"         >&times;</button>
+		</nav>
+		<h1>wbec</h1>
+		<h2>Dynamisches Preisladen</h2>
+	</header>
+
+	<section class="box-group" id="licWarn">
+		<div class="box">
+			<div class="box-content enwgWarning" style="color:var(--theme-color-7)">
+				Dynamisches Preisladen ist nicht freigeschaltet. Die Preise werden angezeigt,
+				aber die Wallbox wird nicht automatisch gesteuert.
+			</div>
+		</div>
+	</section>
+
+	<section class="box-group">
+		<div class="box">
+			<h3 class="box-header">
+				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Automatik</span>
+			</h3>
+			<div class="box-content">
+				<button class="btn" data-dyn-mode="1">
+					<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Aus</span>
+				</button>
+				<button class="btn" data-dyn-mode="2">
+					<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Preis</span>
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<section class="box-group">
+		<div class="box">
+			<h3 class="box-header">
+				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Status</span>
+			</h3>
+			<div class="box-content">
+				<span class="value"><span data-value="dynState">-</span></span>
+			</div>
+		</div>
+		<div class="box">
+			<h3 class="box-header">
+				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Aktueller Preis</span>
+			</h3>
+			<div class="box-content">
+				<span class="value"><span data-value="dynPrice">-</span> ct/kWh</span>
+			</div>
+		</div>
+		<div class="box">
+			<h3 class="box-header">
+				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Strategie</span>
+			</h3>
+			<div class="box-content">
+				<span class="value"><span data-value="dynStrat">-</span></span>
+			</div>
+		</div>
+		<div class="box">
+			<h3 class="box-header">
+				<svg class="flash"><use xlink:href="#flash"></use></svg>&nbsp;<span>Nächstes Fenster</span>
+			</h3>
+			<div class="box-content">
+				<span class="value"><span data-value="dynWindow">-</span></span>
+			</div>
+		</div>
+	</section>
+
+	<h2>Börsenpreise (ct/kWh)</h2>
+	<section class="box-group">
+		<div class="box">
+			<div class="box-content">
+				<div id="chartWrap" class="dyn-chart-wrap"></div>
+				<div id="chartSelInfo" class="dyn-chart-sel"></div>
+				<div id="chartInfo" class="dyn-chart-legend">
+					<span style="color:var(--theme-color-2)">&#9632;</span> günstiges Fenster&nbsp;&nbsp;
+					<span style="color:var(--theme-color-5)">&#9632;</span> teurer Zeitraum&nbsp;&nbsp;
+					<span style="color:var(--headline-1-color)">&#9660;</span> jetzt
+				</div>
+				<div class="dyn-chart-avg" data-value="dynAvg"></div>
+				<div class="dyn-chart-saving" data-value="dynSaving"></div>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		<div>Aktualisiert: <span data-value="dynUpdated">-</span></div>
+	</footer>
+</div>
+</body>
+
+</html>
